@@ -86,7 +86,7 @@ app.delete('/api/todo/:id', (req, res) => {
     const activity = activities.find(data => data.id === parseInt(req.params.id));
     if (!activity) return res.status(404).send('The ID you are looking for is not available');
 
-    //Delete Record from todo
+    //Delete Record from todo.
     const index = activities.indexOf(activity);
     activities.splice(index, 1);
 
