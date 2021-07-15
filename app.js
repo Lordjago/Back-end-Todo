@@ -90,7 +90,7 @@ app.delete('/api/todo/:id', (req, res) => {
     const index = activities.indexOf(activity);
     activities.splice(index, 1);
 
-    //retrun updated activities
+    //Retrun updated activities
     res.send(activities);
 });
 
