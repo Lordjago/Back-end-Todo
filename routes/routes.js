@@ -55,12 +55,15 @@ router.get('/api/todos/:id', (req, res) => {
 
 //Post 1 or more Todo at a time
 router.post('/api/todo', (req, res) => {
-    // // const activity = {
-    // //     id: activities.length + 1,
-    // //     what_todo: req.body.what_todo,
-    // //     when: req.body.when,
-    // //     period: req.body.period
-    // // };
+
+        // let value = activities.findIndex(id);
+        // console.log(value);
+    // const activity = {
+    //     id: activities.length + 1,
+    //     what_todo: req.body.what_todo,
+    //     when: req.body.when,
+    //     period: req.body.period
+    // };
     // // activities.push(activity);
     // // res.send(activity)
     // let ids = 0; 
@@ -70,14 +73,18 @@ router.post('/api/todo', (req, res) => {
     //     console.log(ids + 1);
     // }
     // return res.send(ids);
-
+    // Add to the list of Todos
     const activity = {
         id: activities.length + 1,
         what_todo: req.body.what_todo,
         when: req.body.when,
         period: req.body.period
     };
+
+    //Push new todo into the list of todos
     activities.push(activity);
+
+    //Return the todo added
     res.send(activity);
 });
 
