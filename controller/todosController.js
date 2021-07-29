@@ -1,26 +1,4 @@
-const activities = [
-    {
-        id: 1,
-        what_todo: 'Start Learning how to Code',
-        when: 'Monday',
-        period: 'Morning'
-
-    },
-    {
-        id: 2,
-        what_todo: 'Go for a project survey',
-        when: 'Monday',
-        period: 'Evening'
-
-    },
-    {
-        id: 3,
-        what_todo: 'Analyse and Submit project survey',
-        when: 'Tueday',
-        period: 'Afternoon'
-
-    },
-];
+const Activity = require('../models/todosModel');
 
 //Slash routes
 exports.getSlash = (req, res) => {
@@ -31,7 +9,8 @@ exports.getSlash = (req, res) => {
 //fecth all todos
 exports.getAllTodos = (req, res) => {
     //Check if theres Element in the array of Activities
-    //404 BAd- Request
+    //404 BAd- Request(
+    const activities = Activity.fetchAll();
     if (activities.length < 1) return res.status(404).send('No activity Found');
     //Return activities Array
     res.send(activities);
@@ -41,11 +20,12 @@ exports.getAllTodos = (req, res) => {
 exports.getTodo = (req, res) => {
     //Look up if exist
     //404 BAd- Request
-    const activity = activities.find(data => data.id === parseInt(req.params.id));
-    if (!activity) return res.status(404).send('The ID you are looking for is not available');
+    const activity = Activity.fetchAll();
+    const act = activity.find(data => data.id === parseInt(req.params.id));
+    if (!act) return res.status(404).send('The ID you are looking for is not available');
 
     //Return activity if found
-    res.send(activity);
+    res.send(act);
 }
 
 //Add todo to the array list of todos
@@ -69,15 +49,22 @@ exports.postTodo = (req, res) => {
     // }
     // return res.send(ids);
     // Add to the list of Todos
-    const activity = {
-        id: activities.length + 1,
-        what_todo: req.body.what_todo,
-        when: req.body.when,
-        period: req.body.period
-    };
+    const activity = new Activity(
+        req.body.what_todo,
+        req.body.when,
+        req.body.period,
+        );
+
+    // const activity = {
+    //     id: activities.length + 1,
+    //     what_todo: req.body.what_todo,
+    //     when: req.body.when,
+    //     period: req.body.period
+    // };
 
     //Push new todo into the list of todos
-    activities.push(activity);
+    // activities.push(activity);
+    activity.save();
 
     //Return the todo added
     res.send(activity);
@@ -87,12 +74,13 @@ exports.postTodo = (req, res) => {
 exports.updateTodo = (req, res) => {
     //Look up cos if it exist
     //If not retrun 404 - BAd Request
-    const activity = activities.find(data => data.id === parseInt(req.params.id));
-    if (!activity) return res.status(404).send('The ID you are looking for is not available');
+    const activity = Activity.fetchAll();
+    const act = activity.find(data => data.id === parseInt(req.params.id));
+    if (!act) return res.status(404).send('The ID you are looking for is not available');
 
     //Update if Exist
-    activity.period = req.body.period;
-    res.send(activity);
+    act.period = req.body.period;
+    res.send(act);
 
 }
 
@@ -100,13 +88,14 @@ exports.updateTodo = (req, res) => {
 exports.deleteTodo = (req, res) => {
     //Look up cos if it exist
     //If not retrun 404 - BAd Request
-    const activity = activities.find(data => data.id === parseInt(req.params.id));
-    if (!activity) return res.status(404).send('The ID you are looking for is not available');
+    const activity = Activity.fetchAll();
+    const act = activity.find(data => data.id === parseInt(req.params.id));
+    if (!act) return res.status(404).send('The ID you are looking for is not available');
 
     //Delete Record from todo.
-    const index = activities.indexOf(activity);
-    activities.splice(index, 1);
+    const index = activity.indexOf(act);
+    activity.splice(index, 1);
 
     //Retrun updated activities
-    res.send(activities);
+    res.send(activity);
 }
