@@ -22,7 +22,7 @@ const activities = [
     },
 ];
 
-class Todo {
+module.exports = class Todo {
     constructor(what_do, when, period) {
         this.id = activities.length + 1;
         this.what_do = what_do;
@@ -34,16 +34,16 @@ class Todo {
         activities.push(this);
     }
 
-    fetchAll() {
+     static fetchAll() {
         return activities;
     }
 
-    getById(activityId){
+    static getById(activityId){
         const activity = activities.find(a => a.id === parseInt(activityId));
         return activity || null;
     }
 
-    updateTodo(activityId, infoToUpdate) {
+     static updateTodo(activityId, infoToUpdate) {
         //Find activity if exist
         const activity = activities.find(a => a.id === parseInt(activityId));
         //If exist, Update
@@ -55,6 +55,18 @@ class Todo {
         }   
        
     };
+
+    static deleteTodo(activityId) {
+        const activity = activities.find(a => a.id === parseInt(activityId) );
+        //Delete Record from todo.
+        const index = activities.indexOf(activity);
+
+        activity.splice(index, 1);
+        console.log(activity);
+        ///Retrun updated activities
+        return activities;
+
+    };
 }
 
-module.exports = new Todo;
+// module.exports = new Todo;

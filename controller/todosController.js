@@ -59,7 +59,7 @@ exports.postTodo = (req, res) => {
     const activity = new Activity(
         req.body.what_todo,
         req.body.when,
-        req.body.period,
+        req.body.period
         );
 
     // const activity = {
