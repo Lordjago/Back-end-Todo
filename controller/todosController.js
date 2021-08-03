@@ -1,4 +1,4 @@
-const Activity = require('../models/todosModel');
+const Activity = require('../model/todosModel');
 
 //Slash routes
 exports.getSlash = (req, res) => {
@@ -20,12 +20,19 @@ exports.getAllTodos = (req, res) => {
 exports.getTodo = (req, res) => {
     //Look up if exist
     //404 BAd- Request
-    const activity = Activity.fetchAll();
-    const act = activity.find(data => data.id === parseInt(req.params.id));
-    if (!act) return res.status(404).send('The ID you are looking for is not available');
+    const activityId = req.params.id;
+    const activity = Activity.getById(activityId);
+    if (!activity) return res.status(404).send('The ID you are looking for is not available');
+    //or
+    // const activity = Activity.fetchAll();
+    // const act = activity.find(data => data.id === parseInt(req.params.id));
+    // if (!act) return res.status(404).send('The ID you are looking for is not available');
+
+    // //Return activity if found
+    // res.send(act);
 
     //Return activity if found
-    res.send(act);
+    res.send(activity);
 }
 
 //Add todo to the array list of todos
@@ -74,13 +81,26 @@ exports.postTodo = (req, res) => {
 exports.updateTodo = (req, res) => {
     //Look up cos if it exist
     //If not retrun 404 - BAd Request
-    const activity = Activity.fetchAll();
-    const act = activity.find(data => data.id === parseInt(req.params.id));
-    if (!act) return res.status(404).send('The ID you are looking for is not available');
+    const activityId = req.params.id;
+    const info = {
+        what_todo: req.body.what_todo,
+        when: req.body.when,
+        period: req.body.period
+    };
+    //update with the requests
+    const activityToUpdate = Activity.updateTodo(activityId, info);
+    // console.log(activityToUpdate);
+    if (!activityToUpdate) res.status(404).send('The ID you are looking for is not available');
+     res.send(activityToUpdate);
+
+    //or
+    // const activity = Activity.fetchAll();
+    // const act = activity.find(data => data.id === parseInt(req.params.id));
+    // if (!act) return res.status(404).send('The ID you are looking for is not available');
 
     //Update if Exist
-    act.period = req.body.period;
-    res.send(act);
+    // act.period = req.body.period;
+    // res.send(act);
 
 }
 
