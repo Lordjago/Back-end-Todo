@@ -1,72 +1,92 @@
-const activities = [
-    {
-        id: 1,
-        what_todo: 'Start Learning how to Code',
-        when: 'Monday',
-        period: 'Morning'
+const getDb = require('../utils/db').getDb;
 
-    },
-    {
-        id: 2,
-        what_todo: 'Go for a project survey',
-        when: 'Monday',
-        period: 'Evening'
-
-    },
-    {
-        id: 3,
-        what_todo: 'Analyse and Submit project survey',
-        when: 'Tueday',
-        period: 'Afternoon'
-
-    },
-];
+const mongodb = require('mongodb');
 
 module.exports = class Todo {
     constructor(what_do, when, period) {
-        this.id = activities.length + 1;
         this.what_do = what_do;
         this.when = when;
         this.period = period;
     }
 
     save() {
-        activities.push(this);
+        const db = getDb();
+        return db.collection('activities').insertOne(this)
+        .then((result) => {
+            // console.log(`${result.insertedCount} has been created with the following id(s): `);
+            // console.log(result.insertedId);
+            return result;
+        })
+        .catch((err) => {
+            console.log(err);
+            throw err;
+        });
+        
     }
 
      static fetchAll() {
-        return activities;
+         const db = getDb();
+         const result = db.collection('activities').find();
+        return result.toArray()
+         .then((result) => {
+             console.log(result);
+             return result;
+         })
+         .catch((err) => {
+             console.log(err);
+         })
+        
     }
 
-    static getById(activityId){
-        const activity = activities.find(a => a.id === parseInt(activityId));
-        return activity || null;
-    }
-
-     static updateTodo(activityId, infoToUpdate) {
-        //Find activity if exist
-        const activity = activities.find(a => a.id === parseInt(activityId));
-        //If exist, Update
-        if (activity) {
-            activity.what_todo = infoToUpdate.what_todo;
-            activity.when = infoToUpdate.when;
-            activity.period = infoToUpdate.period;
+    static findById(activityId){
+        const db = getDb();
+        return db.collection('activities').findOne({_id: new mongodb.ObjectId(activityId)})
+        .then((activity) => {
+            console.log(activity);
             return activity;
-        }   
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+
+     static updateTodo(activityId, updatedInfo) {
+        //Find activity if exist
+        const db = getDb();
+         return db.collection('activities').updateOne(
+             { 
+                 _id: new mongodb.ObjectId(activityId) 
+                
+            },
+            {
+                    what_todo:updatedInfo.what_todo, 
+                    when:updatedInfo.when, 
+                    period:updatedInfo.period
+                }
+            )
+            .then((activity) => {
+                console.log(activity);
+                return activity;
+            })
+            .catch((err) => {
+                console.log(err);
+            });
        
     };
 
     static deleteTodo(activityId) {
-        const activity = activities.find(a => a.id === parseInt(activityId) );
-        //Delete Record from todo.
-        const index = activities.indexOf(activity);
-
-        activity.splice(index, 1);
-        console.log(activity);
-        ///Retrun updated activities
-        return activities;
+        const db = getDb();
+        return db
+            .collection('activities')
+            .deleteOne({ _id: new mongodb.ObjectId(activityId) })
+            .then(result => {
+                console.log(`${result.deletedCount} document(s) was/were deleted`);
+                return result;
+            })
+            .catch(err => {
+                console.log(err);
+            });
 
     };
 }
 
-// module.exports = new Todo;

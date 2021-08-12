@@ -17,10 +17,9 @@ router.get('/api/todos/:id', todosController.getTodo);
 router.post('/api/todo', todosController.postTodo);
 
 //Update todo
-router.put('/api/todo/:id', todosController.updateTodo);
+router.post('/api/todo/:id', todosController.updateTodo);
 
 //Delete todo
 router.delete('/api/todo/:id', todosController.deleteTodo);
-
 
 module.exports = router;
