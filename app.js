@@ -14,5 +14,5 @@ app.use(appRoutes);
 const port = process.env.PORT || 8080;
 
 mongoConnect(()=> {
-app.listen(port, console.log(`Listening to ${port}`));
+    app.listen(port, console.log(`Listening to ${port}`));
 });
