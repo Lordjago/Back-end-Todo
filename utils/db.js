@@ -2,13 +2,13 @@ const mongodb = require('mongodb');
 
 const MongoClient = mongodb.MongoClient;
 
-const connectionString = "mongodb+srv://root:root@cluster0.qggmp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const config = require('../config');
 
 let _db;
 
 const mongoConnect = (callback) => {
     //For connection and storing  the connection of the database
-    MongoClient.connect(connectionString)
+    MongoClient.connect(config.connection_string)
         .then(client => {
             console.log('Connected to Database');
             _db = client.db('Todo');
