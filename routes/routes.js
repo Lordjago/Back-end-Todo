@@ -10,17 +10,19 @@ const isAuth = require('../middleware/is-Auth');
 
 
 //Todo Index
-router.get('/', isAuth, todosController.getSlash);
+router.get('/', todosController.getSlash);
+
 //Grouping router that required jwt token authentication => GET
 router.group('/api', isAuth, router => {
     //Fetch all Todo
     router.get('/todos', todosController.getAllTodos);
 
     //Fetch Todo by id
-    // router.get('todos/:id', todosController.getTodo);
+    router.get('/todos/:id', todosController.getTodo);
 
-})
-//Grouping router that required jwt token authentication => GET
+});
+
+//Grouping router that required jwt token authentication => POST
 router.group('/api', isAuth, router => {
     //Post 1 or more Todo at a time
     router.post('/todo', todosController.postTodo);
@@ -29,7 +31,7 @@ router.group('/api', isAuth, router => {
     router.post('/todo/:id', todosController.updateTodo);
 
     //Delete todo
-    // router.delete('/todo/:id', todosController.deleteTodo);
+    router.post('/delete_todo/:id', todosController.postDeleteTodo);
 });
 
 

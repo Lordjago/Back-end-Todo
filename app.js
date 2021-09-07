@@ -13,7 +13,7 @@ const mongoose = require('mongoose');
 
 app.use(appRoutes);
 
-app.use('/api', authRoutes);
+app.use(authRoutes);
 
 
 const port = process.env.PORT || 8080;
