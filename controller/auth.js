@@ -41,6 +41,7 @@ exports.postSignUp = (req, res) => {
 //Login => GET
 exports.getLogin = (req, res) => {
     res.json({
+        
         getLogin: 'Login here'
     })
 }
@@ -57,6 +58,8 @@ exports.postLogin = (req, res) => {
             if (doMatch) {
                 jwt.sign({user}, 'secretkey', (err, token) => {
                     console.log(token);
+                req.header['authorization'] = token;
+                res.redirect('/api/todos');
                 })
             }
             res.redirect('/login');

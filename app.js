@@ -11,9 +11,9 @@ const appRoutes = require('./routes/routes');
 const authRoutes = require('./routes/auth');
 const mongoose = require('mongoose');
 
-app.use('/api/', appRoutes);
+app.use(appRoutes);
 
-app.use('/api/', authRoutes);
+app.use('/api', authRoutes);
 
 
 const port = process.env.PORT || 8080;
