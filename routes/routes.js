@@ -6,7 +6,7 @@ const router = express.Router();
 
 const todosController = require('../controller/todos');
 
-const isAuth = require('../middleware/is-Auth');
+const isAuth = require('../middleware/is-auth');
 
 
 //Todo Index
@@ -18,12 +18,8 @@ router.group('/api', isAuth, router => {
     router.get('/todos', todosController.getAllTodos);
 
     //Fetch Todo by id
-    router.get('/todos/:id', todosController.getTodo);
-
-});
-
-//Grouping router that required jwt token authentication => POST
-router.group('/api', isAuth, router => {
+    router.get('/todos/:id', todosController.getTodo)
+    //=> POST
     //Post 1 or more Todo at a time
     router.post('/todo', todosController.postTodo);
 

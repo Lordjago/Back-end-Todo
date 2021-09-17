@@ -6,49 +6,233 @@ const bcrypt = require('bcryptjs');
 
 const jwt = require('jsonwebtoken');
 
+const mailgun = require("mailgun-js");
+const { reset } = require('nodemon');
+
+const DOMAIN = 'sandboxca2e696c530f4ee9976d161fa69e8608.mailgun.org';
+
+const mg = mailgun({ apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN });
+
 //Sign-Up => GET
 exports.getSignUp = (req, res) => {
     res.json({
         getSignUp: 'Signup here'
     })
 }
+// //Sign-Up => POST
+// exports.postSignUp = (req, res) => {
+//     const { first_name, last_name, email, password, confirm_password } = req.body;
+//     //Checck if all fields are filled 
+//     if(!(first_name, last_name, email, password, confirm_password)) return res.status(401).json({message:'All fields are required'})
+//     //Check is email already exist
+//     User.findOne({ email: email })
+//     .then((userData) => {
+//         //If email exixt return this
+//         if(userData) return res.status(403).json({message:'User already Exist'});
+//         //If email is not available, check is the password are ;correct
+//         if(password !== confirm_password) return res.status(403).send('Password not match');
+//         //hash the password
+//         return hashedPassword = bcrypt.hash(password, 10)
+//         .then((hashedPassword) => {
+//            const user = new User({
+//                first_name: first_name,
+//                last_name: last_name,
+//                email: email.toLowerCase(),
+//                password: hashedPassword
+//            })
+//            //save new user to database
+//            user.save((err, success) => {
+//                if (err) {
+//                    console.log('Error in signup: ', err);
+//                    return res.status(400).json({error: err});
+//                }
+//                return res.status(201).json({
+//                    message: "Sign-up Success"
+//                });
+//            });
+//         })
+//     })
+//     .catch((err) => {
+//         console.log(err);
+//     })
+   
+// }
+
 //Sign-Up => POST
 exports.postSignUp = (req, res) => {
-    const first_name = req.body.first_name;
-    const last_name = req.body.last_name;
-    const email = req.body.email;
-    const password = req.body.password;
-    const confirm_password = req.body.confirm_password;
+    const { first_name, last_name, email, password, confirm_password } = req.body;
     //Checck if all fields are filled 
-    if(!(first_name, last_name, email, password, confirm_password)) return res.status(401).send('All fields are required')
+    if (!(first_name, last_name, email, password, confirm_password)) return res.status(401).json({ message: 'All fields are required' })
     //Check is email already exist
     User.findOne({ email: email })
-    .then((userData) => {
-        //If email exixt return this
-        if(userData) return res.status(403).send('User already Exist');
-        //If email is not available, check is the password are ;correct
-        if(password !== confirm_password) return res.status(403).send('Password not match');
-        //hash the password
-        return hashedPassword = bcrypt.hash(password, 10)
-        .then((hashedPassword) => {
-           const user = new User({
-               first_name: first_name,
-               last_name: last_name,
-               email: email.toLowerCase(),
-               password: hashedPassword
-           })
-           //save new user to database
-           user.save();
+        .then((userData) => {
+            //If email exixt return this
+            if (userData) return res.status(403).json({ message: 'User already Exist' });
+            //If email is not available, check is the password are ;correct
+            if (password !== confirm_password) return res.status(403).send('Password not match');
+
+            const token = jwt.sign({ first_name, last_name, email, password }, process.env.JWT_ACTIVATION_TOKEN, {expiresIn: '20m'});
+
+            const data = {
+                from: 'DecOps@hello.com',
+                to: email,
+                subject: 'Account Activation Link',
+                html: `
+                    <h2> Please click on the given link to activate your account</h2>
+                    <p>${process.env.CLIENT_URL}/auth/email-activate/${token}</p>
+                `
+            };
+            mg.messages().send(data, function (error, body) {
+                if (error) {
+                    return res.json({error: error.message });
+                }
+                return res.json({message: "Email has been sent! Kindly activate your account"})
+                // console.log(body);
+            });
+
         })
-        .then((result) => {
-            res.sendStatus(201);
+        .catch((err) => {
+            console.log(err);
         })
+
+}
+
+exports.activateAccount = (req, res) => {
+    const token = req.params.token;
+    if (token) {
+        jwt.verify(token, process.env.JWT_ACTIVATION_TOKEN, (err, decodedToken) => {
+            if (err) {
+                res.json({error: "Invalid Token or Expired"})
+            }
+            const {first_name, last_name, email, password } = decodedToken;
+            User.findOne({ email: email })
+            .then((userData) => {
+                //If email exixt return this
+                if(userData) return res.status(403).json({message:'User already Exist'});
+                //If email is not available, check is the password are ;correct
+                // if(password !== confirm_password) return res.status(403).send('Password not match');
+                //hash the password
+                return hashedPassword = bcrypt.hash(password, 10)
+                .then((hashedPassword) => {
+                const user = new User({
+                    first_name: first_name,
+                    last_name: last_name,
+                    email: email.toLowerCase(),
+                    password: hashedPassword
+                })
+                //save new user to database
+                user.save((err, success) => {
+                    if (err) {
+                        console.log('Error in signup: while account activation ', err);
+                        return res.status(400).json({error: "Error activation"});
+                    }
+                    return res.status(201).json({
+                        message: "Sign-up Success!"
+                    });
+                });
+                })
+            })
+        })
+    } else {
+        return res.json({error: "Something went wrong"});
+    }
+}
+
+
+//Forget password
+exports.forgetPassword = (req, res) => {
+    const email = req.body.email;
+    User.findOne({email: email})
+    .then((user) => {
+       if (!user) {
+            return res.json({
+                error: "User with this email does not exist"
+            })
+       }
+        const token = jwt.sign({ _id: user._id }, process.env.RESET_PASSWORD_TOKEN, {expiresIn: "20m"});
+        const data = {
+            from: 'DevOps@hello.com',
+            to: email,
+            subject: 'Reset Password',
+            html: `
+                    <h2> Please click on the given link to reset your password</h2>
+                    <p>${process.env.CLIENT_URL}/auth/reset-password/${token}</p>
+                `
+        };
+
+        user.updateOne({resetLink: token}, (err, success) => {
+            if (err) {
+                return res.status(400).json({
+                    error: err.message
+                })
+            } else {
+                mg.messages().send(data, function (error, body) {
+                res.json({
+                    message: "Reset Paaword via the link in your gmail! Follow the instructions"
+                })
+                // console.log(body);
+            });
+            }
+        })
+        
     })
-    .catch((err) => {
+    .catch((err) =>
+        {
         console.log(err);
     })
-   
 }
+
+
+//Reset Password
+exports.resetPassword = (req, res) => {
+    const resetLink = req.params.token;
+    const newPass = req.body.password;
+    if (resetLink) {
+        jwt.verify(resetLink, process.env.RESET_PASSWORD_TOKEN, (err, decodedToken) => {
+            if (err) {
+                return res.status(401).json({
+                    error: "Incorrect token or Expired"
+                });
+            }
+           User.findOne({resetLink: resetLink},  (err, user) => {
+               
+                if(err || !user) {
+                    return res.status(400).json({
+                        error: "User with this token doesnt not exist"
+                    })
+                }
+
+               return hashedPassword = bcrypt.hash(newPass, 10)
+               .then((hashedPassword) => {
+                //    console.log(hashedPassword);
+                   user.updateOne({password: hashedPassword, resetLink: ""}, (err, success) => {
+                       const data = {
+                           from: 'DecOps@hello.com',
+                           to: user.email,
+                           subject: 'Paasword Changed Successful',
+                           html: `
+                            <h2> Password Successfully changed.</h2>
+                            <p>If you dont know about this action, reply immediately!!! </p>
+                             `
+                       };
+                       mg.messages().send(data, function (error, body) {
+                           if (error) {
+                               return res.json({ error: error.message });
+                           }
+                           return res.json({ message: "Password Changed Successful" })
+                           // console.log(body);
+                       });
+                })
+               })
+                
+           })
+        });
+    } else {
+    return res.json({error:"Something went wrong"})
+
+    }
+}
+
 //Login => GET
 exports.getLogin = (req, res) => {
     //Dummy meesage for login page
@@ -72,18 +256,22 @@ exports.postLogin = (req, res) => {
         .then((doMatch) => {
             if (doMatch) {
                 //Create a jwt token to 
-                const token = jwt.sign({user_id: user._id, email }, process.env.ACCESS_TOKEN , {expiresIn: '2h'});
+                const token = jwt.sign({user_id: user._id, email }, process.env.JWT_ACCESS_TOKEN , {expiresIn: '2h'});
+
                 user.token = token;
-                // return res.json({
-                //     user: user
-                // });
-                // console.log(token);
+                
+                res.json({
+                    user: user
+                });
+                console.log(token);
                 // req.header['authorization'] = token;
                 return res.redirect('/api/todos');
                 // })
             }
             //If password doesnt match with databse, redirect to login
-            res.redirect('/login');
+            res.json({
+                message: "Invalid Input"
+            });
         })
     })
     .catch((err) => {

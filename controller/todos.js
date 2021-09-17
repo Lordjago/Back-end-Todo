@@ -1,12 +1,11 @@
 const Todo = require('../model/todos');
 
-const jwt = require('jsonwebtoken');
-
 //Slash routes
 exports.getSlash = (req, res) => {
     //Display a Dummy Message
     res.json({
-        message: "This routes is Working"
+        message: "This routes is Working",
+        // user: req.user.email
     });
 }
 
@@ -20,6 +19,8 @@ exports.getAllTodos = (req, res) => {
             //404 BAd- Request
             if (activities.length === 0) return res.status(404).send('No activity Found');
             //Return activities Array
+            const { user_id, email } = req.user;
+            console.log(user_id, "|||", email)
             res.send(activities);
         })
         .catch((err) => {
