@@ -1,8 +1,20 @@
 const express = require('express');
 
+const path = require('path');
+
+const bodyParser = require('body-parser');
+
 const MONGO_URI = require('./config').connection_string;
 
 const app = express();
+
+app.set('view engine', 'ejs');
+
+app.set('views', 'views');
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(express.static(path.join(__dirname, 'views')))
 
 app.use(express.json());
 

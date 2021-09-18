@@ -3,6 +3,7 @@ const Todo = require('../model/todos');
 //Slash routes
 exports.getSlash = (req, res) => {
     //Display a Dummy Message
+    // res.redirect('auth/login');
     res.json({
         message: "This routes is Working",
         // user: req.user.email

@@ -4,9 +4,20 @@ const express = require('express');
 
 const router = express.Router();
 
-const userController = require('../controller/auth')
+const userController = require('../controller/auth');
+
+const userValidationRules = require('../middleware/validator');
 
 router.group('/auth', router => {
+    //Sllash
+    router.get('/', userController.getSlash);
+
+    //Sign up todos
+    router.get('/sign', userController.getSign);
+
+    //Sign up todos => POST
+    router.post('/sign', userValidationRules, userController.postSign);
+
     //Sign up todos
     router.get('/sign-up', userController.getSignUp);
 
@@ -20,7 +31,7 @@ router.group('/auth', router => {
     router.post('/login', userController.postLogin);
 
     //Activate Account 
-    router.post('/email-activate/:token', userController.activateAccount);
+    router.get('/email-activate/:token', userController.activateAccount);
 
     //Forget Passord
     router.put('/forget-password/', userController.forgetPassword);
