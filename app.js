@@ -28,7 +28,7 @@ app.use(appRoutes);
 app.use(authRoutes);
 
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 
 mongoose.connect(MONGO_URI)
 .then((result) => {
