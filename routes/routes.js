@@ -28,6 +28,9 @@ router.group('/api', isAuth, router => {
 
     //Delete todo
     router.post('/delete_todo/:id', todosController.postDeleteTodo);
+
+    //Dasboard
+    router.get('/dasboard', todosController.getAllTodos);
 });
 
 

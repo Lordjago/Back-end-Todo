@@ -3,11 +3,11 @@ const Todo = require('../model/todos');
 //Slash routes
 exports.getSlash = (req, res) => {
     //Display a Dummy Message
-    // res.redirect('auth/login');
-    res.json({
-        message: "This routes is Working",
-        // user: req.user.email
-    });
+    res.redirect('auth/sign-up');
+    // res.json({
+    //     message: "This routes is Working",
+    //     // user: req.user.email
+    // });
 }
 
 
@@ -18,11 +18,19 @@ exports.getAllTodos = (req, res) => {
         .then((activities) => {
             //Check if theres Element in the array of Activities
             //404 BAd- Request
-            if (activities.length === 0) return res.status(404).send('No activity Found');
+            // if (activities.length === 0) return res.status(404).send('No activity Found');
             //Return activities Array
-            const { user_id, email } = req.user;
-            console.log(user_id, "|||", email)
-            res.send(activities);
+            // const { user_id, email } = req.user;
+            // console.log(user_id, "|||", email)
+            // res.send(activities);
+            res.render('user/dashboard', {
+                title: "Dashboard",
+                user: req.user,
+                activities: activities,
+                hasActivities: activities.length > 0
+
+            }
+            )
         })
         .catch((err) => {
             console.log(err);
@@ -65,15 +73,16 @@ exports.postTodo = (req, res) => {
     activity.save()
     .then((activity) => {
         //Success Message
-        console.log('New Activity Added');
-        console.log(activity);
+        // console.log('New Activity Added');
+        // console.log(activity);
+        res.redirect('/api/todos')
     })
     .catch((err) => {
         console.log(err);
     });
 
     //Return the todo added
-    res.send(activity);
+    // res.send(activity);
 }
 
 //Update 
@@ -97,7 +106,7 @@ exports.updateTodo = (req, res) => {
     })
     .then((result) => {
         console.log(result);
-        res.status(201).redirect('/api/todos');
+        res.status(201).redirect('/api/todo/dasboard');
     })
     .catch((err) => {
         console.log(err);
@@ -127,7 +136,8 @@ exports.postDeleteTodo = (req, res) => {
     //Destroy or remove Todo with the ID from the database
     Todo.findByIdAndRemove(activityId)
     .then((result) => {
-        res.send('Delete Successful');
+        // res.send('Delete Successful');
+        res.redirect('/api/todos')
     })
     
     // if (!act) return res.status(404).send('The ID you are looking for is not available');

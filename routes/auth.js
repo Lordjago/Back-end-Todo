@@ -33,8 +33,14 @@ router.group('/auth', router => {
     //Activate Account 
     router.get('/email-activate/:token', userController.activateAccount);
 
-    //Forget Passord
-    router.put('/forget-password/', userController.forgetPassword);
+    //Forget Passord => GET
+    router.get('/forget-password/', userController.getForgetPassword);
+
+    //Forget Passord => POST
+    router.post('/forget-password/', userController.forgetPassword);
+
+    //Reset Password => GET
+    router.get('/reset-password/:token', userController.getResetPassword);
 
     //Reset Password
     router.post('/reset-password/:token', userController.resetPassword);

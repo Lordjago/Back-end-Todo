@@ -181,14 +181,21 @@ exports.activateAccount = (req, res) => {
 }
 
 
+//Forget password => GET
+exports.getForgetPassword = (req, res) => {
+    res.render('forget-password', { title: "Forget Password", message:"", success: false});
+}
+
 //Forget password
 exports.forgetPassword = (req, res) => {
     const email = req.body.email;
     User.findOne({ email: email })
         .then((user) => {
             if (!user) {
-                return res.json({
-                    error: "User with this email does not exist"
+                return res.render('forget-password', {
+                    title: "Forget Password",
+                    message: "User with this email does not exist",
+                    success: false
                 })
             }
             const token = jwt.sign({ _id: user._id }, process.env.RESET_PASSWORD_TOKEN, { expiresIn: "20m" });
@@ -209,8 +216,10 @@ exports.forgetPassword = (req, res) => {
                     })
                 } else {
                     mg.messages().send(data, function (error, body) {
-                        res.json({
-                            message: "Reset Paaword via the link in your gmail! Follow the instructions"
+                        res.render('forget-password', {
+                            title: "Forget Password",
+                            message: "Reset Password via the link in your gmail! Follow the instructions",
+                            success: true
                         })
                         // console.log(body);
                     });
@@ -223,6 +232,16 @@ exports.forgetPassword = (req, res) => {
         })
 }
 
+//Forget password => GET
+exports.getResetPassword = (req, res) => {
+    const token = req.params.token
+    res.render('reset-password', { 
+        title: "Forget Password", 
+        message: "", 
+        success: false,
+        token: token
+     });
+}
 
 //Reset Password
 exports.resetPassword = (req, res) => {
@@ -314,12 +333,12 @@ exports.postLogin = (req, res) => {
 
                         user.token = token;
 
-                        res.json({
-                            user: user
-                        });
+                        // res.json({
+                        //     user: user
+                        // });
                         console.log(token);
-                        // req.header['authorization'] = token;
-                        return res.redirect('/api/todos');
+                        req.body.token = token;
+                        return res.redirect(`/api/todo/dasboard`)
                         // })
                     }
                     //If password doesnt match with databse, redirect to login
