@@ -187,7 +187,10 @@ exports.activateAccount = (req, res) => {
 
 //Forget password => GET
 exports.getForgetPassword = (req, res) => {
-    res.render('forget-password', { title: "Forget Password", message:"", success: false});
+    res.render('forget-password', { 
+        title: "Forget Password", 
+        message:"", 
+        success: false});
 }
 
 //Forget password
