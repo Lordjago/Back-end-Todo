@@ -6,12 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
   <meta name="description" content=""/>
   <meta name="author" content=""/>
-  <title><%- title%></title>
+  <title><%- title %></title>
   <!-- loader-->
   <link href="../assets/css/pace.min.css" rel="stylesheet"/>
   <script src="../assets/js/pace.min.js"></script>
   <!--favicon-->
-  <link rel="icon" href="../assets//images/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
   <!-- Vector CSS -->
   <link href="../assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet"/>
   <!-- simplebar CSS-->
@@ -45,12 +45,12 @@
    <ul class="sidebar-menu do-nicescrol">
       <li class="sidebar-header">MAIN NAVIGATION</li>
       <li>
-        <a href="/api/todos">
+        <a href="/api/dashboard">
           <i class="zmdi zmdi-view-dashboard"></i> <span>Dashboard</span>
         </a>
       </li>
       <li>
-        <a href="">
+        <a href="/api/profile">
           <i class="zmdi zmdi-face"></i> <span>Profile</span>
         </a>
       </li>
@@ -93,7 +93,7 @@
       <a class="nav-link dropdown-toggle dropdown-toggle-nocaret waves-effect" data-toggle="dropdown" href="javascript:void();">
       <i class="fa fa-bell-o"></i></a>
     </li>
-    <li class="nav-item language">
+    <!-- <li class="nav-item language">
       <a class="nav-link dropdown-toggle dropdown-toggle-nocaret waves-effect" data-toggle="dropdown" href="javascript:void();"><i class="fa fa-flag"></i></a>
       <ul class="dropdown-menu dropdown-menu-right">
           <li class="dropdown-item"> <i class="flag-icon flag-icon-gb mr-2"></i> English</li>
@@ -101,7 +101,7 @@
           <li class="dropdown-item"> <i class="flag-icon flag-icon-cn mr-2"></i> Chinese</li>
           <li class="dropdown-item"> <i class="flag-icon flag-icon-de mr-2"></i> German</li>
         </ul>
-    </li>
+    </li> -->
     <li class="nav-item">
       <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
         <span class="user-profile"><img src="https://via.placeholder.com/110x110" class="img-circle" alt="user avatar"></span>
@@ -112,8 +112,8 @@
            <div class="media">
              <div class="avatar"><img class="align-self-start mr-3" src="https://via.placeholder.com/110x110" alt="user avatar"></div>
             <div class="media-body">
-            <!-- <h6 class="mt-2 user-title">Sarajhon Mccoy</h6> -->
-            <p class="user-subtitle"><%= user.email%></p>
+            <h6 class="mt-2 user-title">Sarajhon Mccoy</h6>
+            <p class="user-subtitle">Mail</p>
             </div>
            </div>
           </a>
@@ -139,45 +139,55 @@
     <div class="container-fluid">
 
   <!--Start Dashboard Content--> 
+
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
-            <div class="card-title">Add Activities</div>
+            <div class="card-title"><% if (editing) { %>
+              Update Task
+              <% } else { %> Add Task <% } %></div>
             <hr>
-            <form action="/api/todo" method="POST">
+            <form action="<% if (editing) { %>/api/update-todo<% } else { %>/api/todo<% } %>" method="POST">
               <div class="row">
+                <% if (editing) { %>
+                  <input type="text" name="id" value="<%= activities._id %>" hidden>
+                  <% }  %>
               <div class="form-group col-md-4">
-                <label for="input-1">Action</label>
-                <input type="text" class="form-control" id="input-1" placeholder="Enter Activity" name="what_todo">
+                <label for="input-1">Task</label>
+                <input type="text" class="form-control" id="input-1" placeholder="Enter Activity" name="what_todo" value="<% if (editing) { %><%= activities.what_todo %><% }  %>">
+              </div>
+              <div class="form-group col-md-4">
+                <label for="input-3">Day</label>
+                <input type="text" class="form-control" id="input-3" placeholder="e.g Morning..." name="period" value="<% if (editing) { %><%= activities.period %><% }  %>">
               </div>
               <div class="form-group col-md-4">
                 <label for="input-2">Time</label>
-                <input type="text" class="form-control" id="input-2" placeholder="e.g Monday..." name="when">
-              </div>
-              <div class="form-group col-md-4">
-                <label for="input-3">Period</label>
-                <input type="text" class="form-control" id="input-3" placeholder="e.g Morning..." name="period">
+                <input type="text" class="form-control" id="input-2" placeholder="e.g Monday..." name="when" value="<% if (editing) { %><%= activities.when %><% }  %>"">
               </div>
               <div class="form-group" style="margin-left: 20px;;">
-                <button type="submit" class="btn btn-light px-5"><i class="icon-lock"></i> Add </button>
+                <button type="submit" class="btn btn-light px-5"><i class="icon-lock"></i><% if (editing) { %>
+                 Update
+                    <% } else { %> Add <% } %></button>
               </div>
               </div>
             </form>
           </div>
         </div>
       </div>
+
 	<div class="row">
 	 <div class="col-12 col-lg-12">
     <% if (hasActivities) { %>
 	   <div class="card">
-	     <div class="card-header">List of Activities to be carried out </div>
+	     <div class="card-header">TASK(s):  </div>
 	       <div class="table-responsive">
-                 <table class="table align-items-center table-flush table-borderless">
+                 <table class="table align-items-center table-flush table-borderless" >
                   <thead>
                    <tr>
-                     <th>Action</th>
+                     <th>Task</th>
+                     <th>Day</th>
                      <th>Time</th>
-                     <th>Period</th>
+                     <th>Completed</th>
                      <th>Update</th>
                      <th>Delete</th>
                      <!-- <th>Created Date</th> -->
@@ -187,16 +197,15 @@
                     <% for (let activity of activities) {%>
                      <tr>
                     <td><%= activity.what_todo %></td>
-                    <td><%= activity.when %></td>
                     <td><%= activity.period %></td>
+                    <td><%= activity.when %></td>
+                    <td style="color: rgb(105, 29, 29);">Not Yet</td>
                     <td>
-                      <form action="">
-                        <button type="submit" class="btn btn-light px-4" style="color: rgb(129, 60, 185);"> Update </button>
-                      </form>
+                        <button type="submit" class="btn btn-light px-4" style="background-color: rgb(41, 168, 52);"><a href="/api/update-todo/<%= activity._id %>?edit=true"> Update </a></button>
                     </td>
                     <td>
-                      <form action="/api/delete_todo/<%= activity._id%>" method="POST">
-                        <button type="submit" class="btn btn-light px-4" style="color: red;"> Delete </button>
+                      <form action="/api/delete-todo/<%= activity._id%>" method="POST">
+                        <button type="submit" class="btn btn-light px-4" style="background-color: rgb(105, 29, 29);"> Delete </button>
                         <!-- <span style="text-align: center; color: red;">X</span> -->
                     </form>
                   </td>
@@ -209,7 +218,7 @@
 
 	   </div>
       <% } else { %>
-        <h5>No Activities Recorded</h5>
+        <h5><% if (editing) { %><% } else { %>No Activities Recorded <% } %></h5>
         <% } %>
 	 </div>
 	</div><!--End Row-->

@@ -15,7 +15,7 @@ router.get('/', todosController.getSlash);
 //Grouping router that required jwt token authentication => GET
 router.group('/api', isAuth, router => {
     //Fetch all Todo
-    router.get('/todos', todosController.getAllTodos);
+    router.get('/dashboard', todosController.getAllTodos);
 
     //Fetch Todo by id
     router.get('/todos/:id', todosController.getTodo)
@@ -24,13 +24,19 @@ router.group('/api', isAuth, router => {
     router.post('/todo', todosController.postTodo);
 
     //Update todo
-    router.post('/todo/:id', todosController.updateTodo);
+    router.get('/update-todo/:id', todosController.getUpdateTodo);
+
+    //Update todo
+    router.post('/update-todo', todosController.updateTodo);
 
     //Delete todo
-    router.post('/delete_todo/:id', todosController.postDeleteTodo);
+    router.post('/delete-todo/:id', todosController.postDeleteTodo);
 
     //Dasboard
     router.get('/dasboard', todosController.getAllTodos);
+
+    //Profile
+    router.get('/profile', todosController.getProfile)
 });
 
 

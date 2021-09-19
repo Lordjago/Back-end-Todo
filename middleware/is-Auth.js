@@ -21,10 +21,13 @@ require('dotenv').config();
 
 const jwt = require('jsonwebtoken');
 
+// const { authHeader } = require('../controller/auth').authHeader()
+
 const verifyToken = (req, res, next) => {
     // const authHeader = req.body.token || req.query.token || req.headers['authorization'] || req.headers['x-access-token'];
-    // console.log(authHeader);
-    const authHeader = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjE0NTM2OWQxMGQzMzNjNTU3Y2QzMjYwIiwiZW1haWwiOiJpYW1qYWdvYmFua3MwMUBnbWFpbC5jb20iLCJpYXQiOjE2MzE5NjQyNjgsImV4cCI6MTYzMTk3MTQ2OH0.pT88gZ9GTzxgW_kOxIZCYKqyq2TveJ4Iit9ZmAMQNeE"
+    // console.log(`From middleware: ${authHeader}`);
+    const authHeader = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjE0NTM2OWQxMGQzMzNjNTU3Y2QzMjYwIiwiZW1haWwiOiJpYW1qYWdvYmFua3MwMUBnbWFpbC5jb20iLCJpYXQiOjE2MzIwODAwODgsImV4cCI6MTYzMjA4NzI4OH0.Fj4rQeXibiZEGdLzxJnlac8mnIu-jMJRjPkvims-Zy0"
+    // if(authHeader == 'undefined') return res.json('Invalid token')
     if (authHeader) {
         jwt.verify(authHeader, process.env.JWT_ACCESS_TOKEN, (err, decodedToken) => {
             if (err) {
@@ -34,13 +37,15 @@ const verifyToken = (req, res, next) => {
             }
 
             const { user_id, email } = decodedToken;
+            req.query.token = authHeader;
             req.user = decodedToken;
-            console.log(user_id, "|||", email);
+            // console.log(user_id, "|||", email);
         });
         
         // req.user = decoded;
     } else {
-         return res.status(401).send('Token is required to view this page');
+        return res.redirect('/auth/login')
+        //  return res.status(401).send('Token is required to view this page');
     }
     next();
 

@@ -6,6 +6,10 @@ const bcrypt = require('bcryptjs');
 
 const jwt = require('jsonwebtoken');
 
+const axios = require('axios');
+
+const url = "localhost:8080/api/";
+
 const { body, validationResult } = require('express-validator');
 
 const mailgun = require("mailgun-js");
@@ -337,8 +341,32 @@ exports.postLogin = (req, res) => {
                         //     user: user
                         // });
                         console.log(token);
-                        req.body.token = token;
-                        return res.redirect(`/api/todo/dasboard`)
+                        // headers: {'x-access-token', token}
+                        // req.body = token;
+                        // const config = {
+                        //     headers: { "x-access-token" : token }
+                        // };
+
+                        // const bodyParameters = {
+                        //     key: "value"
+                        // };
+
+                        // axios.post(
+                        //     config
+                        // )
+                        // const instance = axios.create({
+                        //     baseURL: url,
+                        //     timeout: 1000,
+                        //     headers: { 'Authorization': 'Bearer ' + token }
+                        // });
+
+                        // instance.get('/path')
+                        //     .then(response => {
+                        //         return response.data;
+                        //     })
+                        // require('../middleware/is-auth').authHeader = token;
+                        // req.token = token
+                        return res.redirect(`/api/dashboard`)
                         // })
                     }
                     //If password doesnt match with databse, redirect to login

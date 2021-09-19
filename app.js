@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 
 const MONGO_URI = require('./config').connection_string;
 
+const error = require('./controller/404');
+
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -27,6 +29,7 @@ app.use(appRoutes);
 
 app.use(authRoutes);
 
+app.use('/', error.get404);
 
 const port = process.env.PORT || 3000;
 

@@ -25,6 +25,7 @@ exports.getAllTodos = (req, res) => {
             // res.send(activities);
             res.render('user/dashboard', {
                 title: "Dashboard",
+                editing: false,
                 user: req.user,
                 activities: activities,
                 hasActivities: activities.length > 0
@@ -35,6 +36,30 @@ exports.getAllTodos = (req, res) => {
         .catch((err) => {
             console.log(err);
         });
+}
+
+//Profile => GET
+exports.getProfile = (req, res) => {
+    //Fetch all todoe
+    // Todo.find()
+    //     .then((activities) => {
+            //Check if theres Element in the array of Activities
+            //404 BAd- Request
+            // if (activities.length === 0) return res.status(404).send('No activity Found');
+            //Return activities Array
+            // const { user_id, email } = req.user;
+            // console.log(user_id, "|||", email)
+            // res.send(activities);
+            res.render('user/profile', {
+                title: "Profile",
+                user: req.user
+
+            }
+            )
+        // })
+        // .catch((err) => {
+        //     console.log(err);
+        // });
 }
 
 //Fetch todos by id
@@ -75,7 +100,7 @@ exports.postTodo = (req, res) => {
         //Success Message
         // console.log('New Activity Added');
         // console.log(activity);
-        res.redirect('/api/todos')
+        res.redirect('/api/dashboard')
     })
     .catch((err) => {
         console.log(err);
@@ -85,11 +110,37 @@ exports.postTodo = (req, res) => {
     // res.send(activity);
 }
 
+exports.getUpdateTodo = (req, res) => {
+    const editMode = req.query.edit
+    if (editMode !== "true") {
+        res.redirect('/api/dashboard');
+    }
+    //convert id to mongodb object
+    const id = require('mongodb').ObjectID(req.params.id);
+    console.log(id);
+    Todo.findById(id)
+    .then((activities) => {
+        console.log(activities);
+        return res.render('user/dashboard', {
+        editing: editMode,
+        title: "Update Todo",
+        activities: activities,
+        hasActivities: false
+        
+    }
+    )
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+   
+}
+
 //Update 
 exports.updateTodo = (req, res) => {
     //Look up cos if it exist
     //If not retrun 404 - BAd Request
-    const activityId = req.params.id;
+    const activityId = require('mongodb').ObjectID(req.body.id);
     const what_todo  = req.body.what_todo;
     const when =  req.body.when;
     const period =  req.body.period;
@@ -105,8 +156,8 @@ exports.updateTodo = (req, res) => {
         return todo.save();
     })
     .then((result) => {
-        console.log(result);
-        res.status(201).redirect('/api/todo/dasboard');
+        // console.log(result);
+        res.status(201).redirect('/api/dashboard');
     })
     .catch((err) => {
         console.log(err);
@@ -137,7 +188,7 @@ exports.postDeleteTodo = (req, res) => {
     Todo.findByIdAndRemove(activityId)
     .then((result) => {
         // res.send('Delete Successful');
-        res.redirect('/api/todos')
+        res.redirect('/api/dashboard')
     })
     
     // if (!act) return res.status(404).send('The ID you are looking for is not available');
