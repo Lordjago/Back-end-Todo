@@ -8,8 +8,8 @@
   <meta name="author" content=""/>
   <title><%- title %></title>
   <!-- loader-->
-  <link href="../assets/css/pace.min.css" rel="stylesheet"/>
-  <script src="../assets/js/pace.min.js"></script>
+  <!-- <link href="../assets/css/pace.min.css" rel="stylesheet"/> -->
+  <!-- <script src="../assets/js/pace.min.js"></script> -->
   <!--favicon-->
   <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
   <!-- Vector CSS -->
@@ -26,6 +26,8 @@
   <link href="../assets/css/sidebar-menu.css" rel="stylesheet"/>
   <!-- Custom Style-->
   <link href="../assets/css/app-style.css" rel="stylesheet"/>
+
+  <link href="../assets/css/pagination.css" rel="stylesheet" />
   
 </head>
 
@@ -45,7 +47,7 @@
    <ul class="sidebar-menu do-nicescrol">
       <li class="sidebar-header">MAIN NAVIGATION</li>
       <li>
-        <a href="/api/dashboard">
+        <a href="/api/dashboard?page=1&limit=3">
           <i class="zmdi zmdi-view-dashboard"></i> <span>Dashboard</span>
         </a>
       </li>
@@ -194,7 +196,7 @@
                    </tr>
                    </thead>
                    <tbody>
-                    <% for (let activity of activities) {%>
+                    <% for (let activity of activities.result) {%>
                      <tr>
                     <td><%= activity.what_todo %></td>
                     <td><%= activity.period %></td>
@@ -212,11 +214,35 @@
                    
                       </tr>
                       <% } %>
-
+                      
                  </tbody></table>
                </div>
 
 	   </div>
+              <% if (activities.previous && activities.next) { %>
+              <div class="pagination-container wow zoomIn mar-b-1x" data-wow-duration="0.5s">
+                <ul class="pagination">
+                  <li class="pagination-item--wide first"> <a class="pagination-link--wide first" href="http://localhost:8080/api/dashboard?page=<%=activities.previous.page%>&limit=<%=activities.previous.limit%>">Previous</a> </li>
+                  <li class="pagination-item--wide last"> <a class="pagination-link--wide last" href="http://localhost:8080/api/dashboard?page=<%=activities.next.page%>&limit=<%=activities.next.limit%>">Next</a> </li>
+                </ul>
+              </div>
+              <% } else if (!activities.previous) { %>
+                <div class="pagination-container wow zoomIn mar-b-1x" data-wow-duration="0.5s">
+                  <ul class="pagination">
+                    <li class="pagination-item--wide last"> <a class="pagination-link--wide last"
+                        href="http://localhost:8080/api/dashboard?page=<%=activities.next.page%>&limit=<%=activities.next.limit%>">Next</a>
+                    </li>
+                  </ul>
+                </div>
+                <% } else { %>
+                  <div class="pagination-container wow zoomIn mar-b-1x" data-wow-duration="0.5s">
+                    <ul class="pagination">
+                      <li class="pagination-item--wide first"> <a class="pagination-link--wide first"
+                          href="http://localhost:8080/api/dashboard?page=<%=activities.previous.page%>&limit=<%=activities.previous.limit%>">Previous</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <% } %>
       <% } else { %>
         <h5><% if (editing) { %><% } else { %>No Activities Recorded <% } %></h5>
         <% } %>
@@ -226,7 +252,7 @@
       <!--End Dashboard Content-->
 	  
 	<!--start overlay-->
-		  <div class="overlay toggle-menu"></div>
+		  <!-- <div class="overlay toggle-menu"></div> -->
 		<!--end overlay-->
 		
     </div>

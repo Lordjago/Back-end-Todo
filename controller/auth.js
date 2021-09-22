@@ -10,9 +10,10 @@ const axios = require('axios');
 
 const url = "localhost:8080/api/";
 
-const { body, validationResult } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 
 const mailgun = require("mailgun-js");
+const { json } = require('express');
 
 const DOMAIN = 'sandboxca2e696c530f4ee9976d161fa69e8608.mailgun.org';
 
@@ -33,21 +34,7 @@ exports.getSignUp = (req, res) => {
     //     getSignUp: 'Signup here'
     // })
 }
-exports.getSign = (req, res) => {
-    res.json({
-        getSignUp: 'Sign here'
-    })
-}
-exports.postSign = (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        res.status(422).json({ errors: errors.array() });
-    } else {
-        res.json({
-            message: "All validation passed"
-        })
-    }
-}
+
 // //Sign-Up => POST
 // exports.postSignUp = (req, res) => {
 //     const { first_name, last_name, email, password, confirm_password } = req.body;
@@ -90,10 +77,19 @@ exports.postSign = (req, res) => {
 //Sign-Up => POST
 exports.postSignUp = (req, res) => {
     const { first_name, last_name, email, password, confirm_password } = req.body;
+    //Formating eroor to only return msg => message
+    const myValidationResult = validationResult.withDefaults({
+        formatter: error => {
+            return {
+                message: error.msg,
+            };
+        },
+    });
+    let errors = myValidationResult(req);
     //Checck if all fields are filled 
-    if (!(first_name, last_name, email, password, confirm_password)) return res.status(401).render('register', {
+    if (!errors.isEmpty()) return res.status(401).render('register', {
         title: "Register",
-        message: "All fields are required",
+        message: res.json({errors: errors.mapped()}),
         success: false
     })
     // json({ message: '' })
@@ -196,6 +192,23 @@ exports.getForgetPassword = (req, res) => {
 //Forget password
 exports.forgetPassword = (req, res) => {
     const email = req.body.email;
+    //Formating eroor to only return msg => message
+    const myValidationResult = validationResult.withDefaults({
+        formatter: error => {
+            return {
+                message: error.msg,
+            };
+        },
+    });
+    let errors = myValidationResult(req);
+    if (!errors.isEmpty()) {
+        return res.render('forget-password', {
+            title: "Forget Password",
+            message: res.json({errors: errors.mapped()}),
+            success: false
+        })
+    }
+    
     User.findOne({ email: email })
         .then((user) => {
             if (!user) {
@@ -254,6 +267,18 @@ exports.getResetPassword = (req, res) => {
 exports.resetPassword = (req, res) => {
     const resetLink = req.params.token;
     const newPass = req.body.password;
+    //Formating eroor to only return msg => message
+    const myValidationResult = validationResult.withDefaults({
+        formatter: error => {
+            return {
+                message: error.msg,
+            };
+        },
+    });
+    let errors = myValidationResult(req);
+    if (!errors.isEmpty()) {
+        return res.json({errors: errors.mapped()})
+    }
     if (resetLink) {
         jwt.verify(resetLink, process.env.RESET_PASSWORD_TOKEN, (err, decodedToken) => {
             if (err) {
@@ -316,12 +341,23 @@ exports.getLogin = (req, res) => {
 exports.postLogin = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-    //Checck if all fields are filled 
-    if (!(email && password)) return res.status(400).render('login', {
+    //Formating eroor to only return msg => message
+    const myValidationResult = validationResult.withDefaults({
+        formatter: error => {
+            return {
+                message: error.msg,
+            };
+        },
+    });
+    let errors = myValidationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).render('login', {
         title: "Login",
-        message: "All fields required",
+        message: res.json({errors: errors.mapped()}),
         success: false
     })
+}
     //Check if email exist
     User.findOne({ email: email })
         .then((user) => {
@@ -354,22 +390,8 @@ exports.postLogin = (req, res) => {
                         //     key: "value"
                         // };
 
-                        // axios.post(
-                        //     config
-                        // )
-                        // const instance = axios.create({
-                        //     baseURL: url,
-                        //     timeout: 1000,
-                        //     headers: { 'Authorization': 'Bearer ' + token }
-                        // });
-
-                        // instance.get('/path')
-                        //     .then(response => {
-                        //         return response.data;
-                        //     })
-                        // require('../middleware/is-auth').authHeader = token;
                         // req.token = token
-                        return res.redirect(`/api/dashboard`)
+                        return res.redirect(`/api/dashboard?page=1&limit=3`)
                         // })
                     }
                     //If password doesnt match with databse, redirect to login

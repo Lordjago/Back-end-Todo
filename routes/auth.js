@@ -6,29 +6,28 @@ const router = express.Router();
 
 const userController = require('../controller/auth');
 
-const userValidationRules = require('../middleware/validator');
+const { 
+    register,
+    login,
+    forgetPassword,
+    resetPassword 
+} = require('../middleware/validator');
 
 router.group('/auth', router => {
     //Sllash
     router.get('/', userController.getSlash);
 
     //Sign up todos
-    router.get('/sign', userController.getSign);
-
-    //Sign up todos => POST
-    router.post('/sign', userValidationRules, userController.postSign);
-
-    //Sign up todos
     router.get('/sign-up', userController.getSignUp);
 
     //Login => GET
-    router.get('/login', userController.getLogin);
+    router.get('/login',  userController.getLogin);
 
     //Sign up todos => POST
-    router.post('/sign-up', userController.postSignUp);
+    router.post('/sign-up', register, userController.postSignUp);
 
     //Login => POST
-    router.post('/login', userController.postLogin);
+    router.post('/login', login, userController.postLogin);
 
     //Activate Account 
     router.get('/email-activate/:token', userController.activateAccount);
@@ -37,13 +36,13 @@ router.group('/auth', router => {
     router.get('/forget-password/', userController.getForgetPassword);
 
     //Forget Passord => POST
-    router.post('/forget-password/', userController.forgetPassword);
+    router.post('/forget-password/', forgetPassword, userController.forgetPassword);
 
     //Reset Password => GET
     router.get('/reset-password/:token', userController.getResetPassword);
 
     //Reset Password
-    router.post('/reset-password/:token', userController.resetPassword);
+    router.post('/reset-password/:token', resetPassword, userController.resetPassword);
 });
 
 

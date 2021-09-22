@@ -4,7 +4,7 @@ const path = require('path');
 
 const bodyParser = require('body-parser');
 
-const MONGO_URI = require('./config').connection_string;
+// const MONGO_URI = require('./config').connection_string;
 
 const error = require('./controller/404');
 
@@ -23,6 +23,7 @@ app.use(express.json());
 const appRoutes = require('./routes/routes');
 
 const authRoutes = require('./routes/auth');
+
 const mongoose = require('mongoose');
 
 app.use(appRoutes);
@@ -33,14 +34,12 @@ app.use('/', error.get404);
 
 const port = process.env.PORT || 3000;
 
-mongoose.connect(MONGO_URI)
+mongoose.connect(process.env.CONNECTION_STRING)
 .then((result) => {
-    console.log('Connection Success');
+    console.log('Database Connection Successful');
     app.listen(port, console.log(`Listening to ${port}`));
 })
 .catch((err) => {
     console.log(err);
 });
-// mongoConnect(()=> {
-//     
-// });
+

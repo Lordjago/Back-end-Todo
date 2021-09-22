@@ -1,9 +1,11 @@
 const Todo = require('../model/todos');
 
+const { check, validationResult } = require('express-validator');
+
 //Slash routes
 exports.getSlash = (req, res) => {
     //Display a Dummy Message
-    res.redirect('auth/sign-up');
+    res.redirect('/auth/login');
     // res.json({
     //     message: "This routes is Working",
     //     // user: req.user.email
@@ -27,7 +29,7 @@ exports.getAllTodos = (req, res) => {
                 title: "Dashboard",
                 editing: false,
                 user: req.user,
-                activities: activities,
+                activities: res.pagination,
                 hasActivities: activities.length > 0
 
             }
@@ -86,8 +88,18 @@ exports.postTodo = (req, res) => {
     const what_todo = req.body.what_todo;
     const when = req.body.when;
     const period = req.body.period;
+
+    //Formating eroor to only return msg => message
+    const myValidationResult = validationResult.withDefaults({
+        formatter: error => {
+            return {
+                message: error.msg,
+            };
+        },
+    });
+    let errors = myValidationResult(req);
     //Checck if all fields are filled 
-    if (!(what_todo, when, period)) return res.status(401).send('All fields are required');
+    if (!errors.isEmpty()) return res.status(401).json({errors: errors.mapped()});
     //create a new Onject of Todos
     const activity = new Todo ({
         what_todo: what_todo,
@@ -100,7 +112,7 @@ exports.postTodo = (req, res) => {
         //Success Message
         // console.log('New Activity Added');
         // console.log(activity);
-        res.redirect('/api/dashboard')
+        res.redirect('/api/dashboard?page=1&limit=3')
     })
     .catch((err) => {
         console.log(err);
@@ -144,8 +156,18 @@ exports.updateTodo = (req, res) => {
     const what_todo  = req.body.what_todo;
     const when =  req.body.when;
     const period =  req.body.period;
+
+    //Formating eroor to only return msg => message
+    const myValidationResult = validationResult.withDefaults({
+        formatter: error => {
+            return {
+                message: error.msg,
+            };
+        },
+    });
+    let errors = myValidationResult(req);
     //Checck if all fields are filled 
-    if (!(what_todo, when, period)) return res.status(401).send('All fields are required');
+    if (!errors.isEmpty()) return res.status(401).json({ errors: errors.mapped() });
     //update with the requests
     Todo.findById(activityId)
     .then((todo) => {

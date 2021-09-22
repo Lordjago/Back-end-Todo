@@ -20,14 +20,6 @@
             <form action="/auth/login" method="POST">
                 <h3>Login Form</h3>
                 <div class="form-group">
-                    <!-- <div class="form-wrapper">
-                        <label for="">First Name</label>
-                        <input type="text" class="form-control" name="first_name">
-                    </div>
-                    <div class="form-wrapper">
-                        <label for="">Last Name</label>
-                        <input type="text" class="form-control" name="last_name">
-                    </div> -->
                 </div>
                 <div class="form-wrapper">
                     <label for="">Email</label>
@@ -36,6 +28,12 @@
                 <div class="form-wrapper">
                     <label for="">Password</label>
                     <input type="password" class="form-control" name="password">
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox">Remember me
+                        <span class="checkmark"></span>
+                    </label>
                 </div>
                 <% if (success) {%>
                     <div style="text-align: center; color: green;">
