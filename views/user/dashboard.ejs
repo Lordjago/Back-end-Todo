@@ -11,7 +11,7 @@
   <!-- <link href="../assets/css/pace.min.css" rel="stylesheet"/> -->
   <!-- <script src="../assets/js/pace.min.js"></script> -->
   <!--favicon-->
-  <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+  <!-- <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon"> -->
   <!-- Vector CSS -->
   <link href="../assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet"/>
   <!-- simplebar CSS-->
@@ -41,7 +41,7 @@
      <div class="brand-logo">
       <a href="index.html">
        <img src="../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
-       <h5 class="logo-text"> Admin</h5>
+       <h5 class="logo-text"> <%= data.last_name %></h5>
      </a>
    </div>
    <ul class="sidebar-menu do-nicescrol">
@@ -145,15 +145,10 @@
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
-            <div class="card-title"><% if (editing) { %>
-              Update Task
-              <% } else { %> Add Task <% } %></div>
+            <div class="card-title">Add Task</div>
             <hr>
-            <form action="<% if (editing) { %>/api/update-todo<% } else { %>/api/todo<% } %>" method="POST">
+            <form action="/api/todo" method="POST">
               <div class="row">
-                <% if (editing) { %>
-                  <input type="text" name="id" value="<%= activities._id %>" hidden>
-                  <% }  %>
               <div class="form-group col-md-4">
                 <label for="input-1">Task</label>
                 <input type="text" class="form-control" id="input-1" placeholder="Enter Activity" name="what_todo" value="<% if (editing) { %><%= activities.what_todo %><% }  %>">
@@ -167,9 +162,7 @@
                 <input type="text" class="form-control" id="input-2" placeholder="e.g Monday..." name="when" value="<% if (editing) { %><%= activities.when %><% }  %>"">
               </div>
               <div class="form-group" style="margin-left: 20px;;">
-                <button type="submit" class="btn btn-light px-5"><i class="icon-lock"></i><% if (editing) { %>
-                 Update
-                    <% } else { %> Add <% } %></button>
+                <button type="submit" class="btn btn-light px-5"><i class="icon-lock"></i>Add</button>
               </div>
               </div>
             </form>
@@ -203,7 +196,7 @@
                     <td><%= activity.when %></td>
                     <td style="color: rgb(105, 29, 29);">Not Yet</td>
                     <td>
-                        <button type="submit" class="btn btn-light px-4" style="background-color: rgb(41, 168, 52);"><a href="/api/update-todo/<%= activity._id %>?edit=true"> Update </a></button>
+                        <button type="submit" class="btn btn-light px-4" style="background-color: rgb(41, 168, 52);"><a href="/api/update-todo?activityID=<%= activity._id %>&edit=true"> Update </a></button>
                     </td>
                     <td>
                       <form action="/api/delete-todo/<%= activity._id%>" method="POST">
@@ -213,38 +206,43 @@
                   </td>
                    
                       </tr>
-                      <% } %>
                       
+                       <% } %>
                  </tbody></table>
                </div>
 
 	   </div>
-              <% if (activities.previous && activities.next) { %>
+          <% if (activities.previous && activities.next) { %>
+            <div class="pagination-container wow zoomIn mar-b-1x" data-wow-duration="0.5s">
+              <ul class="pagination">
+                <li class="pagination-item--wide first"> <a class="pagination-link--wide first"
+                    href="http://localhost:8080/api/dashboard?page=<%=activities.previous.page%>&limit=<%=activities.previous.limit%>">Previous</a>
+                </li>
+                <li class="pagination-item--wide last"> <a class="pagination-link--wide last"
+                    href="http://localhost:8080/api/dashboard?page=<%=activities.next.page%>&limit=<%=activities.next.limit%>">Next</a>
+                </li>
+              </ul>
+            </div>
+            <% } else if (!activities.previous) { %>
               <div class="pagination-container wow zoomIn mar-b-1x" data-wow-duration="0.5s">
                 <ul class="pagination">
-                  <li class="pagination-item--wide first"> <a class="pagination-link--wide first" href="http://localhost:8080/api/dashboard?page=<%=activities.previous.page%>&limit=<%=activities.previous.limit%>">Previous</a> </li>
-                  <li class="pagination-item--wide last"> <a class="pagination-link--wide last" href="http://localhost:8080/api/dashboard?page=<%=activities.next.page%>&limit=<%=activities.next.limit%>">Next</a> </li>
+                  <li class="pagination-item--wide last"> <a class="pagination-link--wide last"
+                      href="http://localhost:8080/api/dashboard?page=<%=activities.next.page%>&limit=<%=activities.next.limit%>">Next</a>
+                  </li>
                 </ul>
               </div>
-              <% } else if (!activities.previous) { %>
+              <% } else { %>
                 <div class="pagination-container wow zoomIn mar-b-1x" data-wow-duration="0.5s">
                   <ul class="pagination">
-                    <li class="pagination-item--wide last"> <a class="pagination-link--wide last"
-                        href="http://localhost:8080/api/dashboard?page=<%=activities.next.page%>&limit=<%=activities.next.limit%>">Next</a>
+                    <li class="pagination-item--wide first"> <a class="pagination-link--wide first"
+                        href="http://localhost:8080/api/dashboard?page=<%=activities.previous.page%>&limit=<%=activities.previous.limit%>">Previous</a>
                     </li>
                   </ul>
                 </div>
-                <% } else { %>
-                  <div class="pagination-container wow zoomIn mar-b-1x" data-wow-duration="0.5s">
-                    <ul class="pagination">
-                      <li class="pagination-item--wide first"> <a class="pagination-link--wide first"
-                          href="http://localhost:8080/api/dashboard?page=<%=activities.previous.page%>&limit=<%=activities.previous.limit%>">Previous</a>
-                      </li>
-                    </ul>
-                  </div>
-                  <% } %>
+                <% } %>
+             
       <% } else { %>
-        <h5><% if (editing) { %><% } else { %>No Activities Recorded <% } %></h5>
+        <h5>No Activities Recorded </h5>
         <% } %>
 	 </div>
 	</div><!--End Row-->

@@ -1,5 +1,7 @@
 const Todo = require('../model/todos');
 
+const User = require('../model/users');
+
 const { check, validationResult } = require('express-validator');
 
 //Slash routes
@@ -28,7 +30,7 @@ exports.getAllTodos = (req, res) => {
             res.render('user/dashboard', {
                 title: "Dashboard",
                 editing: false,
-                user: req.user,
+                data: req.user,
                 activities: res.pagination,
                 hasActivities: activities.length > 0
 
@@ -43,21 +45,24 @@ exports.getAllTodos = (req, res) => {
 //Profile => GET
 exports.getProfile = (req, res) => {
     //Fetch all todoe
-    // Todo.find()
-    //     .then((activities) => {
-            //Check if theres Element in the array of Activities
-            //404 BAd- Request
+    console.log(req.user.user_id);
+    // const user_id = require('mongodb').ObjectID(req.user.user_id);
+    // User.findById(user_id)
+    //     .then((userData) => {
+            // Check if theres Element in the array of Activities
+            // 404 BAd- Request
             // if (activities.length === 0) return res.status(404).send('No activity Found');
-            //Return activities Array
+            // Return activities Array
             // const { user_id, email } = req.user;
             // console.log(user_id, "|||", email)
             // res.send(activities);
-            res.render('user/profile', {
-                title: "Profile",
-                user: req.user
+            // console.log(userData);
+            // res.render('user/profile', {
+            //     title: "Profile",
+            //     user: req.user
 
-            }
-            )
+            // }
+            // )
         // })
         // .catch((err) => {
         //     console.log(err);
@@ -125,16 +130,18 @@ exports.postTodo = (req, res) => {
 exports.getUpdateTodo = (req, res) => {
     const editMode = req.query.edit
     if (editMode !== "true") {
-        res.redirect('/api/dashboard');
+        // res.json("not true")
+        res.redirect('/api/dashboard?page=1&limit=3');
     }
     //convert id to mongodb object
-    const id = require('mongodb').ObjectID(req.params.id);
+    const id = require('mongodb').ObjectID(req.query.activityID);
     console.log(id);
     Todo.findById(id)
     .then((activities) => {
         console.log(activities);
-        return res.render('user/dashboard', {
+        return res.render('user/update-todo', {
         editing: editMode,
+        data: req.user,
         title: "Update Todo",
         activities: activities,
         hasActivities: false
@@ -179,7 +186,7 @@ exports.updateTodo = (req, res) => {
     })
     .then((result) => {
         // console.log(result);
-        res.status(201).redirect('/api/dashboard');
+        res.status(201).redirect('/api/dashboard?page=1&limit=3');
     })
     .catch((err) => {
         console.log(err);

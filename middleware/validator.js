@@ -8,7 +8,7 @@ let register = [
     check("last_name").isLength({ min: 6 }).withMessage("Name too short"),
 
     check("email").not().isEmpty().withMessage("Email is empty"),
-    check("email").isEmail().withMessage("Invalid Email"),
+    check("email").isEmail().normalizeEmail().withMessage("Invalid Email"),
     check("email").isLength({ min: 5 }).withMessage("Email too short, < 5"),
 
     check("password").not().isEmpty().withMessage("password is empty"),
@@ -20,7 +20,7 @@ let register = [
 
 let login = [
     check("email").not().isEmpty().withMessage("Email is empty"),
-    check("email").isEmail().withMessage("Invalid Email"),
+    check("email").isEmail().normalizeEmail().withMessage("Invalid Email"),
     check("email").isLength({ min: 5 }).withMessage("Email too short, < 5"),
 
     check("password").not().isEmpty().withMessage("password is empty"),
@@ -53,12 +53,11 @@ let update = [
 let forgetPassword = [
     check("email").not().isEmpty().withMessage("Email is empty"),
     check("email").isLength({ min: 5 }).withMessage("Email too short, < 5"),
-    check("email").isEmail().withMessage("Invalid Email")
+    check("email").isEmail().normalizeEmail().withMessage("Invalid Email")
 ];
 
 let resetPassword = [
     check("token").not().isEmpty().withMessage("Token cannot be empty"),
-
     check("password").not().isEmpty().withMessage("password is empty"),
     check("password").isLength({ min: 5 }).withMessage("password too short < 5")
 ];

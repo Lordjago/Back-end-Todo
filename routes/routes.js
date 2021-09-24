@@ -33,7 +33,7 @@ router.group('/api', router => {
     router.post('/todo',isAuth, create, todosController.postTodo);
 
     //Update todo
-    router.get('/update-todo/:id',isAuth, todosController.getUpdateTodo);
+    router.get('/update-todo',isAuth, todosController.getUpdateTodo);
 
     //Update todo
     router.post('/update-todo',isAuth, update, todosController.updateTodo);

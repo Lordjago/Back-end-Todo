@@ -87,11 +87,9 @@ exports.postSignUp = (req, res) => {
     });
     let errors = myValidationResult(req);
     //Checck if all fields are filled 
-    if (!errors.isEmpty()) return res.status(401).render('register', {
-        title: "Register",
-        message: res.json({errors: errors.mapped()}),
-        success: false
-    })
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.mapped() })
+    }
     // json({ message: '' })
     //Check is email already exist
     User.findOne({ email: email })
@@ -202,11 +200,7 @@ exports.forgetPassword = (req, res) => {
     });
     let errors = myValidationResult(req);
     if (!errors.isEmpty()) {
-        return res.render('forget-password', {
-            title: "Forget Password",
-            message: res.json({errors: errors.mapped()}),
-            success: false
-        })
+        return res.status(400).json({ errors: errors.mapped() })
     }
     
     User.findOne({ email: email })
@@ -229,7 +223,7 @@ exports.forgetPassword = (req, res) => {
                 `
             };
 
-            user.updateOne({ resetLink: token }, (err, success) => {
+            user.updateOne({ resetLink: token, password: '' }, (err, success) => {
                 if (err) {
                     return res.status(400).json({
                         error: err.message
@@ -350,13 +344,8 @@ exports.postLogin = (req, res) => {
         },
     });
     let errors = myValidationResult(req);
-
     if (!errors.isEmpty()) {
-        return res.status(400).render('login', {
-        title: "Login",
-        message: res.json({errors: errors.mapped()}),
-        success: false
-    })
+        return res.status(400).json({ errors: errors.mapped() })
 }
     //Check if email exist
     User.findOne({ email: email })
