@@ -32,12 +32,12 @@ app.use(authRoutes);
 
 app.use('/', error.get404);
 
-const port = process.env.PORT || 3000;
+// const port = process.env.PORT || 3000;
 
 mongoose.connect(process.env.CONNECTION_STRING)
 .then((result) => {
     console.log('Database Connection Successful');
-    app.listen(port, console.log(`Listening to ${port}`));
+    app.listen(process.env.PORT, console.log(`Listening to ${port}`));
 })
 .catch((err) => {
     console.log(err);
