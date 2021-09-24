@@ -4,8 +4,6 @@ const path = require('path');
 
 const bodyParser = require('body-parser');
 
-// const MONGO_URI = require('./config').connection_string;
-
 const error = require('./controller/404');
 
 const app = express();
@@ -37,7 +35,7 @@ app.use('/', error.get404);
 mongoose.connect(process.env.CONNECTION_STRING)
 .then((result) => {
     console.log('Database Connection Successful');
-    app.listen(process.env.PORT, console.log(`Listening to ${port}`));
+    app.listen(process.env.PORT, console.log(`Listening to ${process.env.PORT}`));
 })
 .catch((err) => {
     console.log(err);
