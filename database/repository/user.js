@@ -2,7 +2,18 @@
 
 const UserModel = require('../model/users');
 
-export default class User {
+class User {
+
+    static async signUp (data){
+        UserModel.findOne({email: data.email})
+        .then((userData) => {
+            return userData
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+
      static async findById (id) {
         return UserModel.findById(id)
         .lean()
@@ -14,3 +25,5 @@ export default class User {
             .exec();
     }
 }
+
+module.exports = User

@@ -1,5 +1,3 @@
-const Todo = require('../database/model/todos');
-
 const TodoRepo = require('../database/repository/todo');
 
 const errorType = require('../core/errorType')

@@ -90,16 +90,12 @@ exports.postSignUp = (req, res) => {
     User.findOne({ email: email })
         .then((userData) => {
             //If email exixt return this
-            if (userData) return res.status(403).render('register', {
-                title: "Register",
+            if (userData) return res.status(403).json({
                 message: "User already Exist",
-                success: false
             })
             //If email is not available, check is the password are ;correct
-            if (password !== confirm_password) return res.status(403).render('register', {
-                title: "Register",
-                message: "Password not match",
-                success: false
+            if (password !== confirm_password) return res.status(403).json({
+                message: "Password not match"
             })
 
             const token = jwt.sign({ first_name, last_name, email, password }, process.env.JWT_ACTIVATION_TOKEN, { expiresIn: '20m' });
@@ -117,10 +113,8 @@ exports.postSignUp = (req, res) => {
                 if (error) {
                     return res.json({ error: error.message });
                 }
-                return res.render('register', {
-                    title: "Register",
-                    message: "Email has been sent! Kindly activate your account",
-                    success: true
+                return res.json({
+                    message: "An email containing your account activation has been sent"
                 })
                 // console.log(body);
             });
