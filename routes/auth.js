@@ -11,7 +11,7 @@ const {
     login,
     forgetPassword,
     resetPassword 
-} = require('../middleware/validator');
+} = require('../helpers/validator');
 
 router.group('/auth', router => {
     //Sllash

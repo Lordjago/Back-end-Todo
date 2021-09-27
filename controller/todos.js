@@ -1,45 +1,34 @@
-const Todo = require('../model/todos');
+const Todo = require('../database/model/todos');
 
-const User = require('../model/users');
+const TodoRepo = require('../database/repository/todo');
+
+const errorType = require('../core/errorType')
 
 const { check, validationResult } = require('express-validator');
 
 //Slash routes
 exports.getSlash = (req, res) => {
-    //Display a Dummy Message
-    res.redirect('/auth/login');
-    // res.json({
-    //     message: "This routes is Working",
-    //     // user: req.user.email
-    // });
+    res.json({
+        message: "This routes is Working"
+    });
 }
-
-
-// //fecth all todos
+//fecth all todos
 exports.getAllTodos = (req, res) => {
-    //Fetch all todoe
-    Todo.find()
-        .then((activities) => {
+    //Fetch all todo
+    try {
+        TodoRepo.getAll()
+        .then((data) => {
             //Check if theres Element in the array of Activities
             //404 BAd- Request
-            // if (activities.length === 0) return res.status(404).send('No activity Found');
-            //Return activities Array
-            // const { user_id, email } = req.user;
-            // console.log(user_id, "|||", email)
-            // res.send(activities);
-            res.render('user/dashboard', {
-                title: "Dashboard",
-                editing: false,
-                data: req.user,
-                activities: res.pagination,
-                hasActivities: activities.length > 0
-
-            }
-            )
+            if (data.length === 0) return res.status(404).json({
+                errorType: errorType.NO_DATA,
+                message:'No task Found'});
+                res.json({Tasks:data})
         })
-        .catch((err) => {
-            console.log(err);
-        });
+        
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 //Profile => GET
@@ -73,26 +62,31 @@ exports.getProfile = (req, res) => {
 exports.getTodo = (req, res) => {
     //Look up if exist
     //404 BAd- Request
-    const activityId = req.params.id;
-    Todo.findById(activityId)
-        .then((activity) => {
+    const taskId = req.params.id;
+    try {
+        TodoRepo.findInfoById(taskId)
+        .then((task) => {
             //Check if theres Element in the array of Activities
             //404 BAd- Request
-            if (!activity) return res.status(404).send('The ID you are looking for is not available');
+            if (!task) return res.status(404).json({
+                errorType: errorType.NOIDFOUND,
+                message: 'The ID you are looking for is not available'
+            });
             //Return activities Array
-            res.send(activity);
+            const {_id, ...others} = task
+            res.send(others);
         })
-        .catch((err) => {
-            console.log(`Error: ${err}`);
-        });
+    } catch (error) {
+        console.log(`Error: ${error}`);
+    }
  
 }
 
 // //Add todo to the array list of todos
 exports.postTodo = (req, res) => {
-    const what_todo = req.body.what_todo;
-    const when = req.body.when;
-    const period = req.body.period;
+    const task = req.body.task;
+    const day = req.body.day;
+    const time = req.body.time;
 
     //Formating eroor to only return msg => message
     const myValidationResult = validationResult.withDefaults({
@@ -104,53 +98,30 @@ exports.postTodo = (req, res) => {
     });
     let errors = myValidationResult(req);
     //Checck if all fields are filled 
-    if (!errors.isEmpty()) return res.status(401).json({errors: errors.mapped()});
+    if (!errors.isEmpty()) return res.status(401).json({
+        errorType: errorType.UNCOMPLETE,
+        errors: errors.mapped()
+    });
     //create a new Onject of Todos
-    const activity = new Todo ({
-        what_todo: what_todo,
-        when: when,
-        period: period
-    });
-    //Save todo into the databsse
-    activity.save()
-    .then((activity) => {
-        //Success Message
-        // console.log('New Activity Added');
-        // console.log(activity);
-        res.redirect('/api/dashboard?page=1&limit=3')
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+    const info = {
+        task,
+        day,
+        time
+    }
+   try {
+       TodoRepo.create(info)
+           .then((data) => {
+               res.json({ Task: data })
+           })
+   } catch (error) {
+       console.log(error);
+   }
 
-    //Return the todo added
-    // res.send(activity);
 }
 
 exports.getUpdateTodo = (req, res) => {
-    const editMode = req.query.edit
-    if (editMode !== "true") {
-        // res.json("not true")
-        res.redirect('/api/dashboard?page=1&limit=3');
-    }
-    //convert id to mongodb object
-    const id = require('mongodb').ObjectID(req.query.activityID);
-    console.log(id);
-    Todo.findById(id)
-    .then((activities) => {
-        console.log(activities);
-        return res.render('user/update-todo', {
-        editing: editMode,
-        data: req.user,
-        title: "Update Todo",
-        activities: activities,
-        hasActivities: false
-        
-    }
-    )
-    })
-    .catch((err) => {
-        console.log(err);
+    res.json({
+        message: "Update Here"
     })
    
 }
@@ -159,10 +130,10 @@ exports.getUpdateTodo = (req, res) => {
 exports.updateTodo = (req, res) => {
     //Look up cos if it exist
     //If not retrun 404 - BAd Request
-    const activityId = require('mongodb').ObjectID(req.body.id);
-    const what_todo  = req.body.what_todo;
-    const when =  req.body.when;
-    const period =  req.body.period;
+    const taskId = require('mongodb').ObjectID(req.params.id);
+    const task  = req.body.task;
+    const day =  req.body.day;
+    const time =  req.body.time;
 
     //Formating eroor to only return msg => message
     const myValidationResult = validationResult.withDefaults({
@@ -174,58 +145,47 @@ exports.updateTodo = (req, res) => {
     });
     let errors = myValidationResult(req);
     //Checck if all fields are filled 
-    if (!errors.isEmpty()) return res.status(401).json({ errors: errors.mapped() });
-    //update with the requests
-    Todo.findById(activityId)
-    .then((todo) => {
-        todo.what_todo = what_todo,
-        todo.when = when,
-        todo.period = period
-        //save the updated todo
-        return todo.save();
-    })
-    .then((result) => {
-        // console.log(result);
-        res.status(201).redirect('/api/dashboard?page=1&limit=3');
-    })
-    .catch((err) => {
-        console.log(err);
+    if (!errors.isEmpty()) return res.status(401).json({
+        errorType: errorType.UNCOMPLETE,
+        errors: errors.mapped()
     });
-
-    // const activityToUpdate = Activity.updateTodo(activityId, info);
-    // // console.log(activityToUpdate);
-    // if (!activityToUpdate) res.status(404).send('The ID you are looking for is not available');
-    //  res.send(activityToUpdate);
-
-    //or
-    // const activity = Activity.fetchAll();
-    // const act = activity.find(data => data.id === parseInt(req.params.id));
-    // if (!act) return res.status(404).send('The ID you are looking for is not available');
-
-    //Update if Exist
-    // act.period = req.body.period;
-    // res.send(act);
-
+    //update with the requests
+    const updatedData = {
+        task,
+        day, 
+        time
+    }
+    try {
+        TodoRepo.update(taskId, updatedData)
+        .then((task) => {
+            res.json({updatedData: task});
+        })
+    } catch (error) {
+        console.log(error);
+    }
+  
 }
 
 //Delete
 exports.postDeleteTodo = (req, res) => {
     //Look up cos if it exist
     //If not retrun 404 - BAd Request
-    const activityId = req.params.id;
+    const taskId = req.params.id;
     //Destroy or remove Todo with the ID from the database
-    Todo.findByIdAndRemove(activityId)
-    .then((result) => {
-        // res.send('Delete Successful');
-        res.redirect('/api/dashboard')
-    })
-    
-    // if (!act) return res.status(404).send('The ID you are looking for is not available');
+    try {
+        TodoRepo.delete(taskId)
+        .then((task) => {
+            if (!task) return res.status(404).json({
+                errorType: errorType.NOIDFOUND,
+                message: 'The ID you are looking for is not available'
+            });
+            return res.json({
+                message: "Delete Successfull",
+                Deleled_Task: task
+            })
+        })
+    } catch (error) {
+        console.log(error);
+    }
 
-    //Delete Record from todo.
-//     const index = activity.indexOf(act);
-//     activity.splice(index, 1);
-
-//     //Retrun updated activities
-//     res.send(activity);
 }

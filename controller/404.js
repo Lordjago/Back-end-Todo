@@ -1,3 +1,8 @@
+const errorType = require("../core/errorType")
+
 exports.get404 = (req, res) => {
-    res.render('404', {title: "404"});
+    res.status(404).json({
+        error: errorType.NOT_FOUND,
+        message: "Page not found"
+    })
 }

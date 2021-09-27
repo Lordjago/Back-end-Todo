@@ -7,13 +7,13 @@ const router = express.Router();
 const {
     create,
     update
-} = require('../middleware/validator');
+} = require('../helpers/validator');
 
 const pagination = require('../utils/pagination');
 
 const todosController = require('../controller/todos');
 
-const isAuth = require('../middleware/is-auth');
+const isAuth = require('../helpers/is-auth');
 
 
 //Todo Index
@@ -23,29 +23,29 @@ router.get('/', todosController.getSlash);
 router.group('/api', router => {
 
     router.get('/', todosController.getSlash);
-    //Fetch all Todo
-    router.get('/dashboard',isAuth, pagination(), todosController.getAllTodos);
+    //Fetch all Todo isAuth, pagination(),
+    router.get('/todos', todosController.getAllTodos);
 
-    //Fetch Todo by id
-    router.get('/todos/:id',isAuth, todosController.getTodo)
+    //Fetch Todo by idisAuth,
+    router.get('/todos/:id', todosController.getTodo)
     //=> POST
-    //Post 1 or more Todo at a time
-    router.post('/todo',isAuth, create, todosController.postTodo);
+    //Post 1 or more Todo at a timeisAuth, 
+    router.post('/todo',create, todosController.postTodo);
+
+    //Update todoisAuth,
+    router.get('/update-todo', todosController.getUpdateTodo);
 
     //Update todo
-    router.get('/update-todo',isAuth, todosController.getUpdateTodo);
+    router.post('/update-todo/:id', update, todosController.updateTodo);
 
-    //Update todo
-    router.post('/update-todo',isAuth, update, todosController.updateTodo);
-
-    //Delete todo
-    router.post('/delete-todo/:id',isAuth, todosController.postDeleteTodo);
+    //Delete todoisAuth,
+    router.post('/delete-todo/:id', todosController.postDeleteTodo);
 
     //Dasboard
-    router.get('/dasboard', isAuth, todosController.getAllTodos);
+    // router.get('/dasboard', isAuth, todosController.getAllTodos);
 
     //Profile
-    router.get('/profile', isAuth, todosController.getProfile)
+    // router.get('/profile', isAuth, todosController.getProfile)
 });
 
 

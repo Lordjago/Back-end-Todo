@@ -28,25 +28,25 @@ let login = [
 ];
 
 let create = [
-    check("what_todo").not().isEmpty().withMessage("Task is empty"),
-    check("what_todo").isLength({ min: 6 }).withMessage("Task too short"),
+    check("task").not().isEmpty().withMessage("Task is empty"),
+    check("task").isLength({ min: 6 }).withMessage("Task too short"),
 
-    check("when").not().isEmpty().withMessage("Day is empty"),
-    check("when").isLength({ min: 6 }).withMessage("Day too short"),
+    check("day").not().isEmpty().withMessage("Day is empty"),
+    check("day").isLength({ min: 6 }).withMessage("Day too short"),
 
-    check("period").not().isEmpty().withMessage("Time is empty"),
-    check("period").isLength({ min: 6 }).withMessage("Time too short")
+    check("time").not().isEmpty().withMessage("Time is empty"),
+    check("time").isLength({ min: 6 }).withMessage("Time too short")
 ];
 
 let update = [
-    check("what_todo").not().isEmpty().withMessage("Task is empty"),
-    check("what_todo").isLength({ min: 6 }).withMessage("Task too short"),
+    check("task").not().isEmpty().withMessage("Task is empty"),
+    check("task").isLength({ min: 6 }).withMessage("Task too short"),
 
-    check("when").not().isEmpty().withMessage("Day is empty"),
-    check("when").isLength({ min: 6 }).withMessage("Day too short"),
+    check("day").not().isEmpty().withMessage("Day is empty"),
+    check("day").isLength({ min: 6 }).withMessage("Day too short"),
 
-    check("period").not().isEmpty().withMessage("Time is empty"),
-    check("period").isLength({ min: 6 }).withMessage("Time too short")
+    check("time").not().isEmpty().withMessage("Time is empty"),
+    check("time").isLength({ min: 6 }).withMessage("Time too short")
 
 ];
 

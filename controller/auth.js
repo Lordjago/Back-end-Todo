@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const User = require('../model/users');
+const User = require('../database/model/users');
 
 const bcrypt = require('bcryptjs');
 
@@ -25,14 +25,9 @@ exports.getSlash = (req, res) => {
 
 //Sign-Up => GET
 exports.getSignUp = (req, res) => {
-    res.render('register', {
-        title: "Register",
-        message: "",
-        success: false
+    res.json({
+        getSignUp: 'Signup here'
     })
-    // res.json({
-    //     getSignUp: 'Signup here'
-    // })
 }
 
 // //Sign-Up => POST
@@ -381,6 +376,7 @@ exports.postLogin = (req, res) => {
 
                         // req.token = token
                         return res.redirect(`/api/dashboard?page=1&limit=3`)
+                        // return res.render('/api/dashboard', {token: token})
                         // })
                     }
                     //If password doesnt match with databse, redirect to login

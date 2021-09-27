@@ -3,15 +3,16 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const todoSchema = new Schema({
-    what_todo: {
+    task: {
+        type: String,
+        required: true,
+        maxlength:100
+    },
+    day: {
         type: String,
         required: true
     },
-    when: {
-        type: String,
-        required: true
-    },
-    period: {
+    time: {
         type: String,
         required: true
     }

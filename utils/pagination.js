@@ -1,4 +1,4 @@
-const task = require('../model/todos')
+const task = require('../database/model/todos')
 
 function pagination() {
     return async (req, res, next) => {
