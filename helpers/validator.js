@@ -2,29 +2,33 @@ const { check, validationResult } = require('express-validator');
 
 let register = [
     check("first_name").not().isEmpty().withMessage("Name is empty"),
-    check("first_name").isLength({ min: 6 }).withMessage("Name too short"),
+    check("first_name").isLength({ min: 6 }).withMessage("Name too short").trim(),
 
     check("last_name").not().isEmpty().withMessage("Name is empty"),
-    check("last_name").isLength({ min: 6 }).withMessage("Name too short"),
+    check("last_name").isLength({ min: 6 }).withMessage("Name too short").trim(),
 
     check("email").not().isEmpty().withMessage("Email is empty"),
     check("email").isEmail().normalizeEmail().withMessage("Invalid Email"),
-    check("email").isLength({ min: 5 }).withMessage("Email too short, < 5"),
+    check("email").isLength({ min: 5 }).withMessage("Email too short, < 5").trim(),
 
     check("password").not().isEmpty().withMessage("password is empty"),
-    check("password").isLength({ min: 5 }).withMessage("password too short < 5"),
+    check("password").isLength({ min: 5 }).withMessage("password too short < 5").trim(),
 
-    check("confirm_password").not().isEmpty().withMessage("Confirm Password is empty"),
-    check("confirm_password").isLength({ min: 5 }).withMessage("Confrim Password too short < 5")
+    check("confirm_password").trim().custom((value, { req }) => {
+        if (value !== req.body.password) {
+            throw new Error("Password do not match!!!") 
+        }
+        return true
+    })
 ];
 
 let login = [
     check("email").not().isEmpty().withMessage("Email is empty"),
-    check("email").isEmail().normalizeEmail().withMessage("Invalid Email"),
+    check("email").isEmail().normalizeEmail().withMessage("Invalid Email").trim(),
     check("email").isLength({ min: 5 }).withMessage("Email too short, < 5"),
 
     check("password").not().isEmpty().withMessage("password is empty"),
-    check("password").isLength({ min: 5 }).withMessage("password too short < 5")
+    check("password").isLength({ min: 5 }).withMessage("password too short < 5").trim()
 ];
 
 let create = [

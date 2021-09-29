@@ -14,7 +14,7 @@ exports.getSlash = (req, res) => {
 exports.getAllTodos = (req, res) => {
     //Fetch all todo
     try {
-        TodoRepo.getAll()
+        TodoRepo.getAll({userId : req.user.user_id})
         .then((data) => {
             //Check if theres Element in the array of Activities
             //404 BAd- Request
@@ -64,6 +64,9 @@ exports.getTodo = (req, res) => {
     try {
         TodoRepo.findInfoById(taskId)
         .then((task) => {
+            if (task.user_id !== req.user.user_id ) {
+                res.json({message: "Operation not allowed"})
+            }
             //Check if theres Element in the array of Activities
             //404 BAd- Request
             if (!task) return res.status(404).json({
@@ -104,7 +107,8 @@ exports.postTodo = (req, res) => {
     const info = {
         task,
         day,
-        time
+        time,
+        userId: req.user.user_id
     }
    try {
        TodoRepo.create(info)
@@ -173,6 +177,9 @@ exports.postDeleteTodo = (req, res) => {
     try {
         TodoRepo.delete(taskId)
         .then((task) => {
+            if (task.user_id !== req.user.user_id) {
+                res.json({ message: "Operation not allowed" })
+            }
             if (!task) return res.status(404).json({
                 errorType: errorType.NOIDFOUND,
                 message: 'The ID you are looking for is not available'

@@ -20,11 +20,21 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    resetLink: {
+    activation: {
+        type: Boolean,
+        default: false
+    },
+    activationToken : {
+        type: String,
+        size: 1500,
+        required: true
+    },
+    resetToken: {
         type: String,
         size: 1500,
         default: ''
-    }   
+    }
+                  
 }, { timestamps: true });
 
 //Generate and hash password token

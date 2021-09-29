@@ -71,7 +71,7 @@ exports.getSignUp = (req, res) => {
 
 //Sign-Up => POST
 exports.postSignUp = (req, res) => {
-    const { first_name, last_name, email, password, confirm_password } = req.body;
+    const { first_name, last_name, email, password } = req.body;
     //Formating eroor to only return msg => message
     const myValidationResult = validationResult.withDefaults({
         formatter: error => {
@@ -93,11 +93,8 @@ exports.postSignUp = (req, res) => {
             if (userData) return res.status(403).json({
                 message: "User already Exist",
             })
-            //If email is not available, check is the password are ;correct
-            if (password !== confirm_password) return res.status(403).json({
-                message: "Password not match"
-            })
 
+            
             const token = jwt.sign({ first_name, last_name, email, password }, process.env.JWT_ACTIVATION_TOKEN, { expiresIn: '20m' });
 
             const data = {
@@ -109,17 +106,37 @@ exports.postSignUp = (req, res) => {
                     <p>${process.env.CLIENT_URL}/auth/email-activate/${token}</p>
                 `
             };
-            mg.messages().send(data, function (error, body) {
-                if (error) {
-                    return res.json({ error: error.message });
-                }
-                return res.json({
-                    message: "An email containing your account activation has been sent"
+            return hashedPassword = bcrypt.hash(password, 10)
+                .then((hashedPassword) => {
+                    const user = new User({
+                        first_name: first_name,
+                        last_name: last_name,
+                        email: email.toLowerCase(),
+                        password: hashedPassword,
+                        activationToken: token
+                    })
+                    //save new user to database
+                    user.save((err, success) => {
+                        if (err) {
+                            console.log('Error in signup: Unable to process account sign-up ', err);
+                            return res.status(400).json({ error: "Error Sign-up" });
+                        }
+                        return mg.messages().send(data, function (error, body) {
+                            if (error) {
+                                return res.json({ error: error.message });
+                            }
+                            res.json({
+                                message: "An email containing your account activation has been sent!!!"
+                            })
+                            // console.log(body);
+                        });
+                        });
+                    })
+                .catch((err) => {
+                    console.log(err);
                 })
-                // console.log(body);
-            });
-
-        })
+                })
+          
         .catch((err) => {
             console.log(err);
         })
@@ -127,39 +144,48 @@ exports.postSignUp = (req, res) => {
 }
 
 exports.activateAccount = (req, res) => {
+ 
     const token = req.params.token;
     if (token) {
         jwt.verify(token, process.env.JWT_ACTIVATION_TOKEN, (err, decodedToken) => {
             if (err) {
                 res.json({ error: "Invalid Token or Expired" })
             }
-            const { first_name, last_name, email, password } = decodedToken;
+            const { email } = decodedToken;
+            const data = {
+                from: 'DecOps@hello.com',
+                to: email,
+                subject: 'Account Activation Success',
+                html: `
+                            <h2> Your account activation is successful</h2>
+                        `
+            };
             User.findOne({ email: email })
-                .then((userData) => {
+                .then((user) => {
                     //If email exixt return this
-                    if (userData) return res.status(403).json({ message: 'User already Exist' });
+                    if (!user) return res.status(403).json({ message: 'No record match' });
                     //If email is not available, check is the password are ;correct
                     // if(password !== confirm_password) return res.status(403).send('Password not match');
                     //hash the password
-                    return hashedPassword = bcrypt.hash(password, 10)
-                        .then((hashedPassword) => {
-                            const user = new User({
-                                first_name: first_name,
-                                last_name: last_name,
-                                email: email.toLowerCase(),
-                                password: hashedPassword
+                    if(user.activation == true) {
+                        return res.status(400).json({ error: "Account has already been Activated" });
+                    }
+                    user.updateOne({activation: true, activationToken: "Used"}, (err, success) => {
+                        if (err) {
+                            console.log('Error in activation: Unable to process account activation ', err);
+                            return res.status(400).json({ error: "Error Activation" });
+                        }
+                        return mg.messages().send(data, function (error, body) {
+                            if (error) {
+                                return res.json({ error: error.message });
+                            }
+                            res.json({
+                                message: "Account Activation Successfull!!!"
                             })
-                            //save new user to database
-                            user.save((err, success) => {
-                                if (err) {
-                                    console.log('Error in signup: while account activation ', err);
-                                    return res.status(400).json({ error: "Error activation" });
-                                }
-                                return res.status(201).json({
-                                    message: "Sign-up Success!"
-                                });
-                            });
-                        })
+                            // console.log(body);
+                        });
+                    })
+                    // User.updateOne(userData.email)
                 })
         })
     } else {
@@ -195,11 +221,7 @@ exports.forgetPassword = (req, res) => {
     User.findOne({ email: email })
         .then((user) => {
             if (!user) {
-                return res.render('forget-password', {
-                    title: "Forget Password",
-                    message: "User with this email does not exist",
-                    success: false
-                })
+                return res.json({ message: "User with this email does not exist" })
             }
             const token = jwt.sign({ _id: user._id }, process.env.RESET_PASSWORD_TOKEN, { expiresIn: "20m" });
             const data = {
@@ -212,18 +234,14 @@ exports.forgetPassword = (req, res) => {
                 `
             };
 
-            user.updateOne({ resetLink: token, password: '' }, (err, success) => {
+            user.updateOne({ resetToken: token, password: '' }, (err, success) => {
                 if (err) {
                     return res.status(400).json({
                         error: err.message
                     })
                 } else {
                     mg.messages().send(data, function (error, body) {
-                        res.render('forget-password', {
-                            title: "Forget Password",
-                            message: "Reset Password via the link in your gmail! Follow the instructions",
-                            success: true
-                        })
+                        res.json({ message: "Reset Password via the link in your gmail! Follow the instructions" })
                         // console.log(body);
                     });
                 }
@@ -248,7 +266,7 @@ exports.getResetPassword = (req, res) => {
 
 //Reset Password
 exports.resetPassword = (req, res) => {
-    const resetLink = req.params.token;
+    const resetToken = req.params.token;
     const newPass = req.body.password;
     //Formating eroor to only return msg => message
     const myValidationResult = validationResult.withDefaults({
@@ -262,14 +280,14 @@ exports.resetPassword = (req, res) => {
     if (!errors.isEmpty()) {
         return res.json({errors: errors.mapped()})
     }
-    if (resetLink) {
-        jwt.verify(resetLink, process.env.RESET_PASSWORD_TOKEN, (err, decodedToken) => {
+    if (resetToken) {
+        jwt.verify(resetToken, process.env.RESET_PASSWORD_TOKEN, (err, decodedToken) => {
             if (err) {
                 return res.status(401).json({
                     error: "Incorrect token or Expired"
                 });
             }
-            User.findOne({ resetLink: resetLink }, (err, user) => {
+            User.findOne({ resetToken: resetToken }, (err, user) => {
 
                 if (err || !user) {
                     return res.status(400).json({
@@ -280,7 +298,7 @@ exports.resetPassword = (req, res) => {
                 return hashedPassword = bcrypt.hash(newPass, 10)
                     .then((hashedPassword) => {
                         //    console.log(hashedPassword);
-                        user.updateOne({ password: hashedPassword, resetLink: "" }, (err, success) => {
+                        user.updateOne({ password: hashedPassword, resetToken: "" }, (err, success) => {
                             const data = {
                                 from: 'DecOps@hello.com',
                                 to: user.email,
@@ -314,11 +332,7 @@ exports.getLogin = (req, res) => {
     // res.json({
     //     getLogin: 'Login here'
     // })
-    res.render('login', {
-        title: "Login",
-        message: "",
-        success: false
-    })
+    res.json({ message: "Login Here" })
 }
 //Login => POST
 exports.postLogin = (req, res) => {
@@ -340,17 +354,13 @@ exports.postLogin = (req, res) => {
     User.findOne({ email: email })
         .then((user) => {
             //if user doesnt exist return 403
-            if (!user) return res.status(403).render('login', {
-                title: "login",
-                message: "User with this email not found!",
-                success: false
-            });
+            if (!user) return res.status(403).json({ message: "User with this email not found!" });
             //if user email exist, compare the input password and the database password
             bcrypt.compare(password, user.password)
                 .then((doMatch) => {
                     if (doMatch) {
                         //Create a jwt token to 
-                        const token = jwt.sign({ user_id: user._id, email }, process.env.JWT_ACCESS_TOKEN, { expiresIn: '2h' });
+                        const token = jwt.sign({ user_id: user._id, email, activation: user.activation }, process.env.JWT_ACCESS_TOKEN, { expiresIn: '2h' });
 
                         user.token = token;
 
@@ -369,16 +379,12 @@ exports.postLogin = (req, res) => {
                         // };
 
                         // req.token = token
-                        return res.redirect(`/api/dashboard?page=1&limit=3`)
+                        return res.json({message: "Login Success"})
                         // return res.render('/api/dashboard', {token: token})
                         // })
                     }
                     //If password doesnt match with databse, redirect to login
-                    return res.render('login', {
-                        title: "login",
-                        message: "Invalid Password",
-                        success: false
-                    });
+                    return res.json({message: "Invalid Password"});
                 })
         })
         .catch((err) => {

@@ -5,8 +5,8 @@ const TodoModel = require('../model/todos');
 const UserModel = require('../model/users')
 
 class Todo {
-    static async getAll(filter) {
-        return await TodoModel.find(filter)
+    static async getAll() {
+        return await TodoModel.find()
             .sort({ id: -1 })
             .exec()
     }
@@ -17,14 +17,19 @@ class Todo {
             .exec()
     }
 
-    static async create(info) {
-        const createTask = new TodoModel({
-            task: info.task,
-            day: info.day,
-            time: info.time,
-            userId: info.userId
-        })
-        return createTask.save();
+    static async create(id, info) {
+        UserModel.findById(id).
+            then((user) => {
+                user.tasks.activities.push({ task: info.task, day: info.day, time: info.time })
+                return user.save();
+                console.log(user.tasks.activities);
+            })
+        // const createTask = new TodoModel({
+        //     task: info.task,
+        //     day: info.day,
+        //     time: info.time
+        // })
+        // return createTask.save();
     }
 
     static async update(id, updatedInfo) {

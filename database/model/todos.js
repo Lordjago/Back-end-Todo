@@ -15,6 +15,11 @@ const todoSchema = new Schema({
     time: {
         type: String,
         required: true
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        require: true
     }
 }, {timestamps: true})
 
