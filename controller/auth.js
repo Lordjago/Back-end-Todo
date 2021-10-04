@@ -128,7 +128,6 @@ exports.postSignUp = (req, res) => {
                             res.json({
                                 message: "An email containing your account activation has been sent!!!"
                             })
-                            // console.log(body);
                         });
                         });
                     })
