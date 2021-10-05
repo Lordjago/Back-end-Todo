@@ -24,8 +24,10 @@ exports.getAllTodos = (req, res) => {
                 res.json({Tasks:data})
         })
         
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        const error = new Error(err)
+        error.httpStatusCode = 500
+        return next(error)
     }
 }
 
@@ -77,8 +79,10 @@ exports.getTodo = (req, res) => {
             const {_id, ...others} = task
             res.send(others);
         })
-    } catch (error) {
-        console.log(`Error: ${error}`);
+    } catch (err) {
+        const error = new Error(err)
+        error.httpStatusCode = 500
+        return next(error)
     }
  
 }
@@ -115,8 +119,10 @@ exports.postTodo = (req, res) => {
            .then((data) => {
                res.json({ Task: data })
            })
-   } catch (error) {
-       console.log(error);
+   } catch (err) {
+        const error = new Error(err)
+        error.httpStatusCode = 500
+        return next(error)
    }
 
 }
@@ -162,8 +168,10 @@ exports.updateTodo = (req, res) => {
         .then((task) => {
             res.json({updatedData: task});
         })
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
     }
   
 }
@@ -189,8 +197,10 @@ exports.postDeleteTodo = (req, res) => {
                 Deleled_Task: task
             })
         })
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
     }
 
 }

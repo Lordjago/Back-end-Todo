@@ -64,7 +64,9 @@ exports.getSignUp = (req, res) => {
 //         })
 //     })
 //     .catch((err) => {
-//         console.log(err);
+//        const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
 //     })
 
 // }
@@ -132,12 +134,16 @@ exports.postSignUp = (req, res) => {
                         });
                     })
                 .catch((err) => {
-                    console.log(err);
+                   const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
                 })
                 })
           
         .catch((err) => {
-            console.log(err);
+            const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
         })
 
 }
@@ -248,7 +254,9 @@ exports.forgetPassword = (req, res) => {
 
         })
         .catch((err) => {
-            console.log(err);
+            const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
         })
 }
 
@@ -387,7 +395,9 @@ exports.postLogin = (req, res) => {
                 })
         })
         .catch((err) => {
-            console.log(err);
+            const error = new Error(err)
+            error.httpStatusCode = 500
+            return next(error)
         });
 
 }

@@ -30,6 +30,10 @@ app.use(authRoutes);
 
 app.use('/', error.get404);
 
+app.use((error, req, res, next) => {
+    res.json({message: "An error occur"})
+})
+
 const port = process.env.PORT || 8080;
 
 mongoose.connect(process.env.CONNECTION_STRING)
