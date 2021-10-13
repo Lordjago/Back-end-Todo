@@ -42,7 +42,11 @@ router.group('/api', router => {
     router.post('/delete-todo/:id', todosController.postDeleteTodo);
 
     //Dasboard
-    // router.get('/dasboard', isAuth, todosController.getAllTodos);
+    router.get('/dasboard', verifyToken, todosController.getAllTodos);
+
+    router.get('/hello', verifyToken, (req, res) => {
+        res.render('hello')
+    });
 
     //Profile
     // router.get('/profile', isAuth, todosController.getProfile)

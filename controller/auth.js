@@ -6,9 +6,7 @@ const bcrypt = require('bcryptjs');
 
 const jwt = require('jsonwebtoken');
 
-const axios = require('axios');
-
-const url = "localhost:8080/api/";
+const TodoRepo = require('../database/repository/todo')
 
 const { check, validationResult } = require('express-validator');
 
@@ -65,8 +63,8 @@ exports.getSignUp = (req, res) => {
 //     })
 //     .catch((err) => {
 //        const error = new Error(err)
-            error.httpStatusCode = 500
-            return next(error)
+            // error.httpStatusCode = 500
+            // return next(error)
 //     })
 
 // }
@@ -339,7 +337,14 @@ exports.getLogin = (req, res) => {
     // res.json({
     //     getLogin: 'Login here'
     // })
-    res.json({ message: "Login Here" })
+    // res.json({ message: "Login Here" })
+    // res.render('login')
+    res.render('login', {
+        title: "Forget Password",
+        message: "",
+        success: false,
+        // token: token
+    });
 }
 //Login => POST
 exports.postLogin = (req, res) => {
@@ -374,7 +379,7 @@ exports.postLogin = (req, res) => {
                         // res.json({
                         //     user: user
                         // });
-                        console.log(token);
+                        // console.log(token);
                         // headers: {'x-access-token', token}
                         // req.body = token;
                         // const config = {
@@ -387,7 +392,13 @@ exports.postLogin = (req, res) => {
 
                         // req.token = token
                         return res.json({message: "Login Success"})
-                        // return res.render('/api/dashboard', {token: token})
+                        
+                        // return res.redirect('/hello',
+                        // {
+                        //     headers: {
+                        //         'Authorization' : 'Bearer ' + token
+                        //     }
+                        // })
                         // })
                     }
                     //If password doesnt match with databse, redirect to login

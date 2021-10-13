@@ -26,8 +26,11 @@ const jwt = require('jsonwebtoken');
 const verifyToken = (req, res, next) => {
     // const authHeader = req.body.token || req.query.token || req.headers['authorization'] || req.headers['x-access-token'];
     // console.log(`From middleware: ${authHeader}`);
-    const authHeader = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjE1MzhiZTU2M2E1NGE5MmMyY2EzMjEyIiwiZW1haWwiOiJpYW1qYWdvYmFua3MwMUBnbWFpbC5jb20iLCJhY3RpdmF0aW9uIjp0cnVlLCJpYXQiOjE2MzI5MDgzNzQsImV4cCI6MTYzMjkxNTU3NH0.TYybBaw9TE2SSugXNdoXPAwcotTc9cF7MXpXbYPKlpY';
+    // const authHeader = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjE1MzhiZTU2M2E1NGE5MmMyY2EzMjEyIiwiZW1haWwiOiJpYW1qYWdvYmFua3MwMUBnbWFpbC5jb20iLCJhY3RpdmF0aW9uIjp0cnVlLCJpYXQiOjE2MzI5MDgzNzQsImV4cCI6MTYzMjkxNTU3NH0.TYybBaw9TE2SSugXNdoXPAwcotTc9cF7MXpXbYPKlpY';
     // if(authHeader == 'undefined') return res.json('Invalid token')
+    const authHeader = req.get('Authorization')
+    // .split(' ')[1];
+    console.log(authHeader);
     if (authHeader) {
         jwt.verify(authHeader, process.env.JWT_ACCESS_TOKEN, (err, decodedToken) => {
             if (err) {
@@ -35,7 +38,6 @@ const verifyToken = (req, res, next) => {
                     error: "Invalid token"
                 })
             }
-
             req.user  = decodedToken;
             next();
         });
